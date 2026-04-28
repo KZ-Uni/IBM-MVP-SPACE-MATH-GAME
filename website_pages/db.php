@@ -3,7 +3,7 @@ $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "math_game";
-$port = 3306;
+$port = 3307;
 
 $conn = new mysqli($servername, $username, $password, "", $port);
 
@@ -12,7 +12,7 @@ if ($conn->connect_error)
     die("Connection failed: " . $conn->connect_error);
 }
 
-$conn->query("CREATE DATABASE IF NOT EXISTS $dbname");
+$conn->query("CREATE DATABASE IF NOT EXISTS `$dbname`");
 $conn->select_db($dbname);
 
 $conn->query("
@@ -40,7 +40,6 @@ CREATE TABLE IF NOT EXISTS student_stats (
 )
 ");
 
-
 $conn->query("
 CREATE TABLE IF NOT EXISTS educator_students (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -63,17 +62,19 @@ CREATE TABLE IF NOT EXISTS parent_children (
 
 function createDefaultUser($conn, $username, $password, $role)
 {
-    $check = $conn->prepare("SELECT id FROM users WHERE role = ? LIMIT 1");
-    $check->bind_param("s", $role);
+    $check = $conn->prepare("SELECT id FROM users WHERE username = ? LIMIT 1");
+    $check->bind_param("s", $username);
     $check->execute();
     $check->store_result();
 
-    if ($check->num_rows === 0)
+    if ($check->num_rows === 0) 
     {
         $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $insert = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
         $email = $username . "@system.local";
+
+        $insert = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
         $insert->bind_param("ssss", $username, $email, $hashed, $role);
+
         $insert->execute();
     }
 }
@@ -104,7 +105,8 @@ if ($studentId && $educatorId)
     $check->execute();
     $check->store_result();
 
-    if ($check->num_rows === 0) {
+    if ($check->num_rows === 0)
+    {
         $assign = $conn->prepare("INSERT INTO educator_students (educator_id, student_id) VALUES (?, ?)");
         $assign->bind_param("ii", $educatorId, $studentId);
         $assign->execute();
@@ -133,7 +135,8 @@ if ($studentId)
     $checkStats->execute();
     $checkStats->store_result();
 
-    if ($checkStats->num_rows === 0) {
+    if ($checkStats->num_rows === 0)
+    {
         $insertStats = $conn->prepare("
             INSERT INTO student_stats 
             (user_id, games_played, correct_answers, wrong_answers, avg_reaction_time, wins, losses)
@@ -143,7 +146,6 @@ if ($studentId)
         $insertStats->execute();
     }
 }
-
 
 session_start();
 ?>
