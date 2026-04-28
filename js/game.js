@@ -13,6 +13,12 @@ let defenseTimer = null;
 let attackTimer = null;
 let questionPhase = null;
 let inputLocked = false;
+let totalCorrectAnswers = 0;
+let totalWrongAnswers = 0;
+let reactionTimes = [];
+
+let totalWins = 0;
+let totalLosses = 0;
 
 let nextCardId = 1;
 
@@ -337,6 +343,9 @@ function generateQuestionForCard(card, mode)
         questionText.innerText = text;
         answerInput.value = "";
         answerInput.dataset.correct = correct;
+
+        questionStartTime = Date.now();
+
         showQuestionPopup();
         return;
     }
@@ -366,10 +375,10 @@ function generateQuestionForCard(card, mode)
     answerInput.value = "";
     answerInput.dataset.correct = correct;
 
+    questionStartTime = Date.now();
+
     showQuestionPopup();
 }
-
-
 
 function showQuestionPopup()
 {
@@ -386,6 +395,17 @@ function submitAnswer()
     const answer = Number(answerInput.value);
 
     questionBox.style.display = "none";
+
+    reactionTimes.push(Date.now() - questionStartTime);
+
+    if (answer === correct)
+    {
+        totalCorrectAnswers++;
+    }
+    else
+    {
+        totalWrongAnswers++;
+    }
 
     if (!selectedCard || !questionPhase)
     {
@@ -412,6 +432,7 @@ function submitAnswer()
     selectedCard = null;
     questionPhase = null;
 }
+
 
 
 function resolveAttackWithCard(card)
@@ -460,7 +481,7 @@ function resolveAttackWithCard(card)
 
         if (enemyHP <= 0)
         {
-            turnText.innerText = "YOU WIN!";
+            endGame(true);
             clearAttackTimer();
             clearDefenseTimer();
             return;
@@ -614,7 +635,7 @@ function applyDamageToPlayer(dmg)
 
     if (playerHP <= 0)
     {
-        turnText.innerText = "YOU LOSE!";
+        endGame(false);
         clearAttackTimer();
         clearDefenseTimer();
     }
@@ -918,6 +939,58 @@ function showWrongAnswer()
     {
         box.style.display = "none";
     }, 1200);
+}
+
+function endGame(win)
+{
+    if (win) totalWins++;
+    else totalLosses++;
+
+    sendStatsToServer(win);
+    showEndPopup(win);
+}
+
+
+function showEndPopup(win)
+{
+    document.getElementById("gameEndTitle").innerText = win ? "YOU WIN!" : "YOU LOSE!";
+    document.getElementById("gameEndMessage").innerText = win ? "Great job! Want to play again?" : "Don't worry, try again!";
+
+    document.getElementById("gameEndPopup").style.display = "flex";
+}
+
+function playAgain()
+{
+    window.location.reload();
+}
+
+function returnToDashboard()
+{
+    window.location.href = "student_dashboard.php";
+}
+
+function getAverageReaction()
+{
+    if (reactionTimes.length === 0) return 0;
+    return Math.round(reactionTimes.reduce((a,b)=>a+b) / reactionTimes.length);
+}
+
+function sendStatsToServer(win)
+{
+    fetch("update_stats.php",
+    {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify
+        ({
+            won: win,
+            correct: totalCorrectAnswers,
+            wrong: totalWrongAnswers,
+            reaction: getAverageReaction(),
+            wins: totalWins,
+            losses: totalLosses
+        })
+    });
 }
 
 
