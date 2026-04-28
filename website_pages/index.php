@@ -12,13 +12,13 @@ if ($logged_in)
             $dashboard_link = "student_dashboard.php";
             break;
         case 'admin':
-            $dashboard_link = "admin.php";
+            $dashboard_link = "admin_dashboard.php";
             break;
         case 'educator':
-            $dashboard_link = "educator.php";
+            $dashboard_link = "educator_dashboard.php";
             break;
         case 'parent':
-            $dashboard_link = "parent.php";
+            $dashboard_link = "parent_dashboard.php";
             break;
     }
 }
