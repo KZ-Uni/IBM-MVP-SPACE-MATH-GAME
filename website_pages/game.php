@@ -64,6 +64,16 @@
             Wrong Answer!
         </div>
 
+        <div id="gameEndPopup">
+            <div id="gameEndInner">
+                <h2 id="gameEndTitle">Game Over</h2>
+                <p id="gameEndMessage"></p>
+
+                <button id="playAgainBtn" onclick="playAgain()">Play Again</button>
+                <button id="returnDashboardBtn" onclick="returnToDashboard()">Return to Dashboard</button>
+            </div>
+        </div>
+
         <script src="../js/game.js"></script>
     </body>
 </html>
