@@ -1,6 +1,27 @@
 <?php
 require "db.php";
 $logged_in = isset($_SESSION['user_id']);
+
+$dashboard_link = "index.php";
+
+if ($logged_in)
+{
+    switch ($_SESSION['role'])
+    {
+        case 'student':
+            $dashboard_link = "student_dashboard.php";
+            break;
+        case 'admin':
+            $dashboard_link = "admin.php";
+            break;
+        case 'educator':
+            $dashboard_link = "educator.php";
+            break;
+        case 'parent':
+            $dashboard_link = "parent.php";
+            break;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -171,7 +192,7 @@ $logged_in = isset($_SESSION['user_id']);
 
                         <a href="game.php"><button class="menuBtn start">Start Game</button></a>
                         <a href="tutorial.php"><button class="menuBtn secondary">Play Tutorial</button></a>
-                        <a href="student_dashboard.php"><button class="menuBtn dashboard">Go to Dashboard</button></a>
+                        <a href="<?php echo $dashboard_link; ?>"><button class="menuBtn dashboard">Go to Dashboard</button></a>
                         <a href="logout.php"><button class="menuBtn logout">Logout</button></a>
                     </div>
                 </div>
