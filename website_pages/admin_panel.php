@@ -60,6 +60,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin')
     </form>
 
     <br><br>
+    <a id="playBtn" href="index.php">Back to Menu</a>
     <a id="logoutBtn" href="logout.php">Logout</a>
 
 </div>
