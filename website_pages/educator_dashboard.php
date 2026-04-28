@@ -59,7 +59,7 @@ $result = $stmt->get_result();
             <th>Win Rate</th>
         </tr>
 
-        <?php while ($row = $result->fetch_assoc()): 
+        <?php while ($row = $result->fetch_assoc()):
             $total = $row['wins'] + $row['losses'];
             $winrate = $total > 0 ? round(($row['wins'] / $total) * 100) . "%" : "0%";
         ?>
@@ -76,6 +76,7 @@ $result = $stmt->get_result();
         <?php endwhile; ?>
     </table>
 
+    <a id="playBtn" href="index.php">Back to Menu</a>
     <a id="logoutBtn" href="logout.php">Logout</a>
 </div>
 
