@@ -1,12 +1,6 @@
 <?php
 require "db.php";
-session_start();
-
-if (!isset($_SESSION['user_id']))
-{
-    header("Location: login.php");
-    exit;
-}
+$logged_in = isset($_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,39 +8,175 @@ if (!isset($_SESSION['user_id']))
     <meta charset="UTF-8">
     <title>Space Math TCG</title>
     <link rel="stylesheet" href="../css/style.css">
-
     <style>
-        /* your styles here */
+        html, body
+        {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        #noScrollWrapper
+        {
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        #spaceBackground
+        {
+            position: fixed;
+            inset: 0;
+            z-index: -5;
+        }
+
+        #menuBox
+        {
+            background: rgba(3, 6, 20, 0.85);
+            padding: 40px 50px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(0, 234, 255, 0.25);
+            box-shadow: 0 0 30px rgba(0,0,0,0.9), 0 0 25px rgba(0,234,255,0.25);
+        }
+
+        .menuBtn
+        {
+            display: block;
+            width: 100%;
+            max-width: 260px;
+            margin: 14px auto;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            background: rgba(5, 10, 30, 0.9);
+            color: #00eaff;
+            border: 2px solid #00eaff;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .menuBtn:hover
+        {
+            transform: translateY(-3px) scale(1.05);
+            background: rgba(0, 234, 255, 0.1);
+            box-shadow: 0 0 15px #00eaff, 0 0 30px rgba(0,234,255,0.6);
+        }
+
+        .menuBtn:active
+        {
+            transform: scale(0.95);
+        }
+
+        .menuBtn.start
+        {
+            border-color: #00ff88;
+            color: #00ff88;
+            box-shadow: 0 0 14px rgba(0,255,136,0.5);
+        }
+
+        .menuBtn.start:hover
+        {
+            background: rgba(0,255,136,0.15);
+            box-shadow: 0 0 18px #00ff88, 0 0 35px rgba(0,255,136,0.7);
+        }
+
+        .menuBtn.secondary
+        {
+            border-color: #0077ff;
+            color: #66b3ff;
+        }
+
+        .menuBtn.secondary:hover
+        {
+            background: rgba(0,119,255,0.15);
+        }
+
+        .menuBtn.dashboard
+        {
+            border-color: #00eaff;
+        }
+
+        .menuBtn.logout
+        {
+            border-color: #ff4d4d;
+            color: #ff4d4d;
+            box-shadow: 0 0 12px rgba(255,0,0,0.5);
+        }
+
+        .menuBtn.logout:hover
+        {
+            background: rgba(255,0,0,0.15);
+            box-shadow: 0 0 18px #ff4d4d, 0 0 30px rgba(255,0,0,0.7);
+        }
+
+        #menuLayout
+        {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #loginLayout
+        {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
+    <div id="noScrollWrapper">
+        <div id="spaceBackground">
+            <div id="stars1" class="starLayer"></div>
+            <div id="stars2" class="starLayer"></div>
+            <div id="stars3" class="starLayer"></div>
+        </div>
 
-<div id="spaceBackground">
-    <div id="stars1" class="starLayer"></div>
-    <div id="stars2" class="starLayer"></div>
-    <div id="stars3" class="starLayer"></div>
-</div>
+        <div id="uiWrapper">
+            <?php if (!$logged_in): ?>
+                <div id="loginLayout">
+                    <div id="loginBox">
+                        <h2>Login</h2>
 
-<div id="uiWrapper">
-    <div id="menuContainer">
-        <div id="menuBox">
-            <h1>🚀 Space Math TCG</h1>
-            <p>Battle enemies using math-powered cards</p>
+                        <?php if (isset($_GET['error'])): ?>
+                            <div id="loginError">Invalid username or password</div>
+                        <?php endif; ?>
 
-            <a href="game.php">
-                <button class="menuBtn start">Start Game</button>
-            </a>
+                        <form action="login.php" method="post">
+                            <input type="text" name="username" placeholder="Username" required>
+                            <input type="password" name="password" placeholder="Password" required>
+                            <button type="submit">Login</button>
+                        </form>
 
-            <a href="tutorial.php">
-                <button class="menuBtn secondary">Play Tutorial</button>
-            </a>
+                        <a href="register.php" style="color: cyan; display: block; margin-top: 10px;">
+                            Create Account
+                        </a>
+                    </div>
+                </div>
 
-            <a href="logout.php">
-                <button class="menuBtn">Logout</button>
-            </a>
+            <?php else: ?>
+
+                <div id="menuLayout">
+                    <div id="menuBox">
+                        <h1>🚀 Space Math TCG</h1>
+                        <p>Battle enemies using math-powered cards</p>
+
+                        <a href="game.php"><button class="menuBtn start">Start Game</button></a>
+                        <a href="tutorial.php"><button class="menuBtn secondary">Play Tutorial</button></a>
+                        <a href="student_dashboard.php"><button class="menuBtn dashboard">Go to Dashboard</button></a>
+                        <a href="logout.php"><button class="menuBtn logout">Logout</button></a>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
-</div>
-
 </body>
 </html>
