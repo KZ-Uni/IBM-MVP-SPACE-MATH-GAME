@@ -1,0 +1,561 @@
+body
+{
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+    overflow-x: hidden;
+    background: black;
+}
+
+#spaceBackground
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -5;
+    background: radial-gradient(circle at center, #0a0f2d 0%, #03040f 60%, #000000 100%);
+}
+
+#uiWrapper
+{
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 5;
+}
+
+h1
+{
+    margin-top: 35px;
+    margin-bottom: 10px;
+    font-size: 42px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px #00eaff, 0 0 40px #0088aa;
+}
+
+#turnText
+{
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00eaff;
+    min-height: 28px;
+}
+
+.hpContainer
+{
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+.hpPanel
+{
+    width: 45%;
+    text-align: center;
+}
+
+.hpLabel
+{
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    text-shadow: 0 0 10px #00eaff;
+}
+
+.hpBar
+{
+    width: 100%;
+    height: 26px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid #00eaff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.4);
+}
+
+.hpFill
+{
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #00ff88, #00cc66);
+    transition: width 0.4s ease;
+    box-shadow: inset 0 0 12px rgba(0, 255, 150, 0.7);
+}
+
+.hpValue
+{
+    margin-top: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 0 0 8px #00eaff;
+}
+
+#battlefield
+{
+    position: relative;
+    width: 100%;
+    height: 420px;
+    margin-bottom: 20px;
+}
+
+.ship
+{
+    position: absolute;
+    width: 80px;
+    height: auto;
+    filter: drop-shadow(0 0 10px #00eaff);
+}
+
+#playerShip
+{
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#enemyShip
+{
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#laser
+{
+    position: absolute;
+    width: 6px;
+    height: 25px;
+    background: red;
+    display: none;
+    box-shadow: 0 0 10px red;
+}
+
+#handTitle
+{
+    margin-top: 10px;
+    margin-bottom: 8px;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 0 12px #00eaff;
+}
+
+#cards
+{
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    padding: 10px 20px;
+}
+
+.card
+{
+    width: 120px;
+    height: 180px;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: radial-gradient(circle at top, #1a1f36 0%, #0a0d1f 60%, #000 100%);
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover
+{
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+}
+
+.card.disabled
+{
+    opacity: 0.3;
+    cursor: default;
+    box-shadow: none;
+    transform: none;
+}
+
+.card-header
+{
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+}
+
+.card-op
+{
+    font-size: 48px;
+    font-weight: bold;
+    margin: 10px 0;
+    text-shadow: 0 0 8px rgba(255,255,255,0.4);
+}
+
+.card-type
+{
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+.rarity-stars
+{
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+.card-footer
+{
+    font-size: 12px;
+    opacity: 0.75;
+    line-height: 1.2;
+}
+
+.card-attack
+{
+    border: 2px solid #00eaff;
+}
+
+.card-defense
+{
+    border: 2px solid #ff9f1c;
+}
+
+.rarity-1
+{
+    box-shadow: 0 0 10px rgba(255,255,255,0.15);
+}
+
+.rarity-2
+{
+    box-shadow: 0 0 14px rgba(0,255,0,0.5);
+}
+
+.rarity-3
+{
+    box-shadow: 0 0 18px rgba(0,150,255,0.8);
+}
+
+.rarity-4
+{
+    box-shadow: 0 0 22px rgba(255,0,255,1);
+}
+
+#questionBox
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+#questionInner
+{
+    background: #111827;
+    padding: 25px 35px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,255,255,0.5);
+    text-align: center;
+    width: 320px;
+}
+
+#questionText
+{
+    font-size: 26px;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px cyan;
+}
+
+#answerInput
+{
+    width: 80%;
+    padding: 10px;
+    font-size: 20px;
+    border-radius: 8px;
+    border: 2px solid cyan;
+    background: #0d1220;
+    color: white;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+#questionInner button
+{
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 8px;
+    border: none;
+    background: cyan;
+    color: black;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#enemyContainer
+{
+    margin-top: 10px;
+    text-align: center;
+}
+
+#enemyLabel
+{
+    font-size: 18px;
+    margin-bottom: 5px;
+    text-shadow: 0 0 10px #ff4d4d;
+}
+
+#enemyCards
+{
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.enemyCard
+{
+    width: 40px;
+    height: 60px;
+    border-radius: 6px;
+    background: #550000;
+    border: 2px solid #ff4d4d;
+    box-shadow: 0 0 8px rgba(255,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+}
+
+.enemyCard .card-header,
+.enemyCard .card-type,
+.enemyCard .card-footer
+{
+    display: none !important;
+}
+
+.enemyCard .card-op
+{
+    font-size: 28px;
+    margin: 0;
+    padding: 0;
+}
+
+.enemyCard .rarity-stars
+{
+    font-size: 10px;
+    margin-top: 2px;
+    max-width: 100%;
+    word-break: break-all;
+    text-align: center;
+}
+
+.enemyCard.hidden
+{
+    background: linear-gradient(135deg, #aa0000, #550000);
+}
+
+.enemyCard.revealed
+{
+    background: #111827;
+    font-size: 20px;
+}
+
+#enemyHiddenNote
+{
+    font-size: 14px;
+    opacity: 0.7;
+    margin-top: -5px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 6px #ff4d4d;
+}
+
+.cardClone
+{
+    position: absolute;
+    width: 55px;
+    height: 80px;
+    background: #111;
+    border-radius: 10px;
+    z-index: 99999;
+    transition: left 1s ease-out, top 1s ease-out, transform 1s ease-out;
+}
+
+.cardClone.playerGlow
+{
+    border: 3px solid #00eaff;
+    box-shadow: 0 0 20px #00eaff;
+}
+
+.cardClone.enemyGlow
+{
+    border: 3px solid #ff3b3b;
+    box-shadow: 0 0 20px #ff3b3b;
+}
+
+.cardClone.fly
+{
+    transition: left 0.5s ease-out, top 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.cardToShip
+{
+    position: absolute;
+    z-index: 9999;
+    animation: moveToShip 0.8s ease-out forwards;
+}
+
+@keyframes moveToShip
+{
+    0%
+    {
+        transform: translate(0, 0) scale(1);
+    }
+    100%
+    {
+        transform: translate(-50%, -50%) scale(0.7);
+    }
+}
+
+.cardFlyAttack
+{
+    animation: flyAttack 1.2s ease-out forwards;
+}
+
+.cardFlyDefend
+{
+    animation: flyDefend 1.2s ease-out forwards;
+}
+
+@keyframes flyAttack
+{
+    0%
+    {
+        transform: translate(-50%, -50%) scale(0.7);
+    }
+    100%
+    {
+        transform: translate(-50%, -200px) scale(0.9);
+    }
+}
+
+@keyframes flyDefend
+{
+    0%
+    {
+        transform: translate(-50%, -50%) scale(0.7);
+    }
+    100%
+    {
+        transform: translate(-50%, 200px) scale(0.5);
+        opacity: 0;
+    }
+}
+
+.cardValue
+{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 26px;
+    font-weight: bold;
+    text-shadow: 0 0 6px black;
+    pointer-events: none;
+}
+
+.cardClone.defenderHit
+{
+    transition: left 0.6s ease-out, top 0.6s ease-out, transform 0.6s ease-out, opacity 0.8s ease-out;
+    transform: rotate(50deg) scale(0.8);
+    opacity: 0;
+}
+
+.cardClone.chargeUp
+{
+    animation: chargeShake 0.15s infinite alternate;
+    box-shadow: 0 0 25px 10px rgba(255,255,255,0.4);
+}
+
+@keyframes chargeShake
+{
+    0%
+    {
+        transform: translate(-2px, 0) rotate(0deg);
+    }
+    100%
+    {
+        transform: translate(2px, 0) rotate(1deg);
+    }
+}
+
+.cardClone.superGlow
+{
+    box-shadow: 0 0 35px 15px rgba(255,255,255,0.7);
+}
+
+.shipFlash
+{
+    animation: shipFlashAnim 0.25s ease-out;
+}
+
+@keyframes shipFlashAnim
+{
+    0%
+    {
+        filter: brightness(4) drop-shadow(0 0 20px white);
+    }
+    100%
+    {
+        filter: brightness(1) drop-shadow(0 0 10px #00eaff);
+    }
+}
+
+#wrongAnswerBox
+{
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ff3b3b;
+    color: white;
+    padding: 25px 50px;
+    border-radius: 12px;
+    font-size: 40px;
+    font-weight: bold;
+    display: none;
+    z-index: 999999;
+    box-shadow: 0 0 25px rgba(0,0,0,0.5);
+    text-align: center;
+    pointer-events: none;
+}
+
+@keyframes wrongFlash
+{
+    0%
+    {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.7);
+    }
+    100%
+    {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
