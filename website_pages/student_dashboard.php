@@ -42,63 +42,60 @@ $stats = $stats ?? [
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-
-<div id="spaceBackground">
-    <div id="stars1" class="starLayer"></div>
-    <div id="stars2" class="starLayer"></div>
-    <div id="stars3" class="starLayer"></div>
-</div>
-
-<div id="studentWrapper">
-    <h1>Student Dashboard</h1>
-
-    <div id="studentStatsBox">
-
-        <div class="statItem">
-            <span class="statLabel">Games Played</span>
-            <span class="statValue"><?php echo $stats['games_played']; ?></span>
-        </div>
-
-        <div class="statItem">
-            <span class="statLabel">Correct Answers</span>
-            <span class="statValue"><?php echo $stats['correct_answers']; ?></span>
-        </div>
-
-        <div class="statItem">
-            <span class="statLabel">Wrong Answers</span>
-            <span class="statValue"><?php echo $stats['wrong_answers']; ?></span>
-        </div>
-
-        <div class="statItem">
-            <span class="statLabel">Avg Reaction Time</span>
-            <span class="statValue"><?php echo $stats['avg_reaction_time']; ?> ms</span>
-        </div>
-
-        <div class="statItem">
-            <span class="statLabel">Wins</span>
-            <span class="statValue"><?php echo $stats['wins']; ?></span>
-        </div>
-
-        <div class="statItem">
-            <span class="statLabel">Losses</span>
-            <span class="statValue"><?php echo $stats['losses']; ?></span>
-        </div>
-
-        <div class="statItem">
-            <span class="statLabel">Win Rate</span>
-            <span class="statValue">
-                <?php
-                    $total = $stats['wins'] + $stats['losses'];
-                    echo $total > 0 ? round(($stats['wins'] / $total) * 100) . "%" : "0%";
-                ?>
-            </span>
-        </div>
-
+    <div id="spaceBackground">
+        <div id="stars1" class="starLayer"></div>
+        <div id="stars2" class="starLayer"></div>
+        <div id="stars3" class="starLayer"></div>
     </div>
 
-    <a id="playBtn" href="game.php">Play Game</a>
-    <a id="logoutBtn" href="logout.php">Logout</a>
-</div>
+    <div id="studentWrapper">
+        <h1>Student Dashboard</h1>
 
+        <div id="studentStatsBox">
+            <div class="statItem">
+                <span class="statLabel">Games Played</span>
+                <span class="statValue"><?php echo $stats['games_played']; ?></span>
+            </div>
+
+            <div class="statItem">
+                <span class="statLabel">Correct Answers</span>
+                <span class="statValue"><?php echo $stats['correct_answers']; ?></span>
+            </div>
+
+            <div class="statItem">
+                <span class="statLabel">Wrong Answers</span>
+                <span class="statValue"><?php echo $stats['wrong_answers']; ?></span>
+            </div>
+
+            <div class="statItem">
+                <span class="statLabel">Avg Reaction Time</span>
+                <span class="statValue"><?php echo $stats['avg_reaction_time']; ?> ms</span>
+            </div>
+
+            <div class="statItem">
+                <span class="statLabel">Wins</span>
+                <span class="statValue"><?php echo $stats['wins']; ?></span>
+            </div>
+
+            <div class="statItem">
+                <span class="statLabel">Losses</span>
+                <span class="statValue"><?php echo $stats['losses']; ?></span>
+            </div>
+
+            <div class="statItem">
+                <span class="statLabel">Win Rate</span>
+                <span class="statValue">
+                    <?php
+                        $total = $stats['wins'] + $stats['losses'];
+                        echo $total > 0 ? round(($stats['wins'] / $total) * 100) . "%" : "0%";
+                    ?>
+                </span>
+            </div>
+        </div>
+
+        <a id="playBtn" href="game.php">Play Game</a>
+        <a id="playBtn" href="index.php">Back to Menu</a>
+        <a id="logoutBtn" href="logout.php">Logout</a>
+    </div>
 </body>
 </html>
