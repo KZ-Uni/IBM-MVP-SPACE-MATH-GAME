@@ -407,33 +407,29 @@ function submitAnswer()
         totalWrongAnswers++;
     }
 
-    if (!selectedCard || !questionPhase)
+    const card = selectedCard;
+    const phaseCopy = questionPhase;
+
+    selectedCard = null;
+    questionPhase = null;
+
+    if (!card)
     {
-        questionPhase = null;
         unlockInput();
         return;
     }
 
     if (answer === correct)
     {
-        if (questionPhase === "attack")
-            resolveAttackWithCard(selectedCard);
-        else
-            resolveDefenseWithCard(selectedCard);
+        if (phaseCopy === "attack") resolveAttackWithCard(card);
+        else resolveDefenseWithCard(card);
     }
     else
     {
-        if (questionPhase === "attack")
-            failAttackCard();
-        else
-            failDefenseCard();
+        if (phaseCopy === "attack") failAttackCard();
+        else failDefenseCard();
     }
-
-    selectedCard = null;
-    questionPhase = null;
 }
-
-
 
 function resolveAttackWithCard(card)
 {
@@ -545,10 +541,9 @@ function failDefenseCard()
     setTimeout(() =>
     {
         applyDamageToPlayer(pendingDamage);
-        renderHand();
-        renderEnemyHand();
 
-        if (playerHP <= 0) {
+        if (playerHP <= 0)
+        {
             unlockInput();
             return;
         }
@@ -671,7 +666,7 @@ function startAttackTimer()
         if (t < 0)
         {
             clearAttackTimer();
-            skipAttack();
+            if (!isQuestionActive()) skipAttack();
         }
     }, 1000);
 }
@@ -692,7 +687,7 @@ function startDefenseTimer()
         if (t < 0)
         {
             clearDefenseTimer();
-            skipDefense();
+            if (!isQuestionActive()) skipDefense();
         }
     }, 1000);
 }
@@ -981,8 +976,7 @@ function sendStatsToServer(win)
     {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify
-        ({
+        body: JSON.stringify({
             won: win,
             correct: totalCorrectAnswers,
             wrong: totalWrongAnswers,
@@ -993,8 +987,18 @@ function sendStatsToServer(win)
     });
 }
 
+window.addEventListener("load", () =>
+{
+    setInterval(() =>
+    {
+        if (!isQuestionActive() && inputLocked)
+        {
+            unlockInput();
+        }
+    }, 2000);
 
-
+    startGame();
+});
 
 // ---------- GAME ----------
 
