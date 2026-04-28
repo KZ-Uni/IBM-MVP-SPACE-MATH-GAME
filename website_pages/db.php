@@ -3,62 +3,147 @@ $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "math_game";
-$port = 3307;
+$port = 3306;
 
 $conn = new mysqli($servername, $username, $password, "", $port);
 
-if ($conn->connect_error) {
+if ($conn->connect_error)
+{
     die("Connection failed: " . $conn->connect_error);
 }
 
-/* ---------------------------
-   DATABASE
-----------------------------*/
 $conn->query("CREATE DATABASE IF NOT EXISTS $dbname");
 $conn->select_db($dbname);
 
-/* ---------------------------
-   PLAYERS
-----------------------------*/
 $conn->query("
-CREATE TABLE IF NOT EXISTS players (
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('student','educator','parent','admin') DEFAULT 'student',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+)
 ");
 
-/* ---------------------------
-   GAME SESSIONS (NEW)
-   - tracks each full match
-----------------------------*/
 $conn->query("
-CREATE TABLE IF NOT EXISTS game_sessions (
+CREATE TABLE IF NOT EXISTS student_stats (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    player_id INT NOT NULL,
-    score INT DEFAULT 0,
-    rounds_survived INT DEFAULT 0,
-    result ENUM('win','lose') DEFAULT 'lose',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+    user_id INT NOT NULL,
+    games_played INT DEFAULT 0,
+    correct_answers INT DEFAULT 0,
+    wrong_answers INT DEFAULT 0,
+    avg_reaction_time FLOAT DEFAULT 0,
+    wins INT DEFAULT 0,
+    losses INT DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)
 ");
 
-/* ---------------------------
-   OPTIONAL: CARD LOG (NEW)
-   - useful for debugging / analytics
-----------------------------*/
+
 $conn->query("
-CREATE TABLE IF NOT EXISTS game_log (
+CREATE TABLE IF NOT EXISTS educator_students (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    session_id INT NOT NULL,
-    turn_type VARCHAR(20),
-    card_type VARCHAR(20),
-    operator CHAR(1),
-    value INT,
-    damage INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (session_id) REFERENCES game_sessions(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+    educator_id INT NOT NULL,
+    student_id INT NOT NULL,
+    FOREIGN KEY (educator_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
+)
 ");
+
+$conn->query("
+CREATE TABLE IF NOT EXISTS parent_children (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    parent_id INT NOT NULL,
+    child_id INT NOT NULL,
+    FOREIGN KEY (parent_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (child_id) REFERENCES users(id) ON DELETE CASCADE
+)
+");
+
+function createDefaultUser($conn, $username, $password, $role)
+{
+    $check = $conn->prepare("SELECT id FROM users WHERE role = ? LIMIT 1");
+    $check->bind_param("s", $role);
+    $check->execute();
+    $check->store_result();
+
+    if ($check->num_rows === 0)
+    {
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $insert = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
+        $email = $username . "@system.local";
+        $insert->bind_param("ssss", $username, $email, $hashed, $role);
+        $insert->execute();
+    }
+}
+
+createDefaultUser($conn, "admin", "admin", "admin");
+createDefaultUser($conn, "educator", "educator", "educator");
+createDefaultUser($conn, "parent", "parent", "parent");
+createDefaultUser($conn, "student", "student", "student");
+
+function getUserIdByRole($conn, $role)
+{
+    $stmt = $conn->prepare("SELECT id FROM users WHERE role = ? LIMIT 1");
+    $stmt->bind_param("s", $role);
+    $stmt->execute();
+    $stmt->bind_result($id);
+    $stmt->fetch();
+    return $id;
+}
+
+$studentId  = getUserIdByRole($conn, "student");
+$educatorId = getUserIdByRole($conn, "educator");
+$parentId   = getUserIdByRole($conn, "parent");
+
+if ($studentId && $educatorId)
+{
+    $check = $conn->prepare("SELECT id FROM educator_students WHERE student_id = ? AND educator_id = ?");
+    $check->bind_param("ii", $studentId, $educatorId);
+    $check->execute();
+    $check->store_result();
+
+    if ($check->num_rows === 0) {
+        $assign = $conn->prepare("INSERT INTO educator_students (educator_id, student_id) VALUES (?, ?)");
+        $assign->bind_param("ii", $educatorId, $studentId);
+        $assign->execute();
+    }
+}
+
+if ($studentId && $parentId)
+{
+    $check = $conn->prepare("SELECT id FROM parent_children WHERE child_id = ? AND parent_id = ?");
+    $check->bind_param("ii", $studentId, $parentId);
+    $check->execute();
+    $check->store_result();
+
+    if ($check->num_rows === 0)
+    {
+        $assign = $conn->prepare("INSERT INTO parent_children (parent_id, child_id) VALUES (?, ?)");
+        $assign->bind_param("ii", $parentId, $studentId);
+        $assign->execute();
+    }
+}
+
+if ($studentId)
+{
+    $checkStats = $conn->prepare("SELECT user_id FROM student_stats WHERE user_id = ?");
+    $checkStats->bind_param("i", $studentId);
+    $checkStats->execute();
+    $checkStats->store_result();
+
+    if ($checkStats->num_rows === 0) {
+        $insertStats = $conn->prepare("
+            INSERT INTO student_stats 
+            (user_id, games_played, correct_answers, wrong_answers, avg_reaction_time, wins, losses)
+            VALUES (?, 0, 0, 0, 0, 0, 0)
+        ");
+        $insertStats->bind_param("i", $studentId);
+        $insertStats->execute();
+    }
+}
+
+
+session_start();
 ?>
