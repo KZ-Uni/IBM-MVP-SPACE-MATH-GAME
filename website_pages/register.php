@@ -2,6 +2,7 @@
 require "db.php";
 
 $message = "";
+$messageType = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST")
 {
@@ -10,20 +11,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST")
     $password = password_hash($_POST["password"], PASSWORD_DEFAULT);
     $role = $_POST["role"];
 
-    $stmt = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssss", $username, $email, $password, $role);
+    $checkUsername = $conn->prepare("SELECT id FROM users WHERE username = ? LIMIT 1");
+    $checkUsername->bind_param("s", $username);
+    $checkUsername->execute();
+    $checkUsername->store_result();
 
-    if ($stmt->execute())
+    $checkEmail = $conn->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+    $checkEmail->bind_param("s", $email);
+    $checkEmail->execute();
+    $checkEmail->store_result();
+
+    if ($checkUsername->num_rows > 0)
     {
-        $message = "Account created! You can now log in.";
+        $message = "Error: Username already exists.";
+        $messageType = "error";
+    }
+    elseif ($checkEmail->num_rows > 0)
+        {
+        $message = "Error: Email already exists.";
+        $messageType = "error";
     }
     else
     {
-        $message = "Error: Username or email already exists.";
+        $stmt = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $username, $email, $password, $role);
+
+        if ($stmt->execute())
+        {
+            $message = "Congratulations! Your account is ready. Please log in to begin.";
+            $messageType = "success";
+        }
+        else
+        {
+            $message = "Oops! Something went wrong. Please try again.";
+            $messageType = "error";
+        }
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -108,8 +133,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST")
 
         #loginError
         {
-            color: red;
             margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .success
+        {
+            color: #00ff88 !important;
+            background-color: rgba(0, 255, 136, 0.12);
+            border: 2px solid #00ff88;
+        }
+
+        .error
+        {
+            color: red;
+            background-color: rgba(255, 0, 0, 0.1);
+            border: 2px solid red;
         }
 
         a
@@ -136,7 +177,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST")
         <h2>Create Account</h2>
 
         <?php if (!empty($message)): ?>
-            <div id="loginError"><?php echo $message; ?></div>
+            <div id="loginError" class="<?php echo $messageType; ?>">
+                <?php echo $message; ?>
+            </div>
         <?php endif; ?>
 
         <form method="POST">
