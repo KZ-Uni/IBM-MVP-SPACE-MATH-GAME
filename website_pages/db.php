@@ -6,11 +6,7 @@ $dbname = "math_game";
 $port = 3307;
 
 $conn = new mysqli($servername, $username, $password, "", $port);
-
-if ($conn->connect_error)
-{
-    die("Connection failed: " . $conn->connect_error);
-}
+if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
 
 $conn->query("CREATE DATABASE IF NOT EXISTS `$dbname`");
 $conn->select_db($dbname);
@@ -60,23 +56,27 @@ CREATE TABLE IF NOT EXISTS parent_children (
 )
 ");
 
+$conn->query("
+CREATE TABLE IF NOT EXISTS student_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    difficulty ENUM('easy','medium','hard') DEFAULT 'easy',
+    difficulty_locked TINYINT(1) DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)
+");
+
 function createDefaultUser($conn, $username, $password, $role)
 {
     $email = $username . "@system.local";
-
     $check = $conn->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
     $check->bind_param("s", $email);
     $check->execute();
     $check->store_result();
-
     if ($check->num_rows === 0)
     {
         $hashed = password_hash($password, PASSWORD_DEFAULT);
-
-        $insert = $conn->prepare("
-            INSERT INTO users (username, email, password, role)
-            VALUES (?, ?, ?, ?)
-        ");
+        $insert = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
         $insert->bind_param("ssss", $username, $email, $hashed, $role);
         $insert->execute();
     }
@@ -107,7 +107,6 @@ if ($studentId && $educatorId)
     $check->bind_param("ii", $studentId, $educatorId);
     $check->execute();
     $check->store_result();
-
     if ($check->num_rows === 0)
     {
         $assign = $conn->prepare("INSERT INTO educator_students (educator_id, student_id) VALUES (?, ?)");
@@ -122,7 +121,6 @@ if ($studentId && $parentId)
     $check->bind_param("ii", $studentId, $parentId);
     $check->execute();
     $check->store_result();
-
     if ($check->num_rows === 0)
     {
         $assign = $conn->prepare("INSERT INTO parent_children (parent_id, child_id) VALUES (?, ?)");
@@ -137,16 +135,22 @@ if ($studentId)
     $checkStats->bind_param("i", $studentId);
     $checkStats->execute();
     $checkStats->store_result();
-
     if ($checkStats->num_rows === 0)
     {
-        $insertStats = $conn->prepare("
-            INSERT INTO student_stats 
-            (user_id, games_played, correct_answers, wrong_answers, avg_reaction_time, wins, losses)
-            VALUES (?, 0, 0, 0, 0, 0, 0)
-        ");
+        $insertStats = $conn->prepare("INSERT INTO student_stats (user_id) VALUES (?)");
         $insertStats->bind_param("i", $studentId);
         $insertStats->execute();
+    }
+
+    $checkSettings = $conn->prepare("SELECT id FROM student_settings WHERE user_id = ?");
+    $checkSettings->bind_param("i", $studentId);
+    $checkSettings->execute();
+    $checkSettings->store_result();
+    if ($checkSettings->num_rows === 0)
+    {
+        $insertSettings = $conn->prepare("INSERT INTO student_settings (user_id) VALUES (?)");
+        $insertSettings->bind_param("i", $studentId);
+        $insertSettings->execute();
     }
 }
 
