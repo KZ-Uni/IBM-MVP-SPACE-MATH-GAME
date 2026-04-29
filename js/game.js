@@ -56,6 +56,18 @@ else
 let playerHP = playerMaxHP;
 let enemyHP = enemyMaxHP;
 
+let animationMode = window.animationMode || "fast";
+
+function toggleAnimationSpeed()
+{
+    animationMode = (animationMode === "fast") ? "slow" : "fast";
+    window.animationMode = animationMode;
+    localStorage.setItem("animMode", animationMode);
+
+    const el = document.getElementById("animModeText");
+    if (el) el.innerText = animationMode.toUpperCase();
+}
+
 function lockInput()
 {
     inputLocked = true;
@@ -818,12 +830,12 @@ function clearDefenseTimer()
     }
 }
 
-function animateAttack(attackerCardEl, defenderCardEl, attackerIsPlayer, attackerValue, defenderValue, enemySkipped, callback)
-{
+function animateAttack(attackerCardEl, defenderCardEl, attackerIsPlayer, attackerValue, defenderValue, enemySkipped, callback) {
+
     const attackerClone = createCloneAt(attackerCardEl, attackerIsPlayer, attackerValue);
     let defenderClone = null;
 
-    if (!enemySkipped)
+    if (!enemySkipped && defenderCardEl)
     {
         defenderClone = createCloneAt(defenderCardEl, !attackerIsPlayer, defenderValue);
     }
@@ -834,91 +846,335 @@ function animateAttack(attackerCardEl, defenderCardEl, attackerIsPlayer, attacke
     const attackerFront = getShipFront(attackerShip, !attackerIsPlayer);
     const defenderFront = getShipFront(defenderShip, attackerIsPlayer);
 
-    // PHASE 1 — move to their ships
-    setTimeout(() =>
+    if (animationMode === "fast")
     {
-        attackerClone.style.left = attackerFront.x + "px";
-        attackerClone.style.top = attackerFront.y + "px";
-
-        if (defenderClone)
+        setTimeout(() =>
         {
-            defenderClone.style.left = defenderFront.x + "px";
-            defenderClone.style.top = defenderFront.y + "px";
-        }
-    }, 50);
+            attackerClone.style.left = attackerFront.x + "px";
+            attackerClone.style.top = attackerFront.y + "px";
 
-    // PHASE 2 — CHARGE UP
-    setTimeout(() =>
-    {
-        attackerClone.classList.add("chargeUp");
-        if (defenderClone) defenderClone.classList.add("chargeUp");
-    }, 500);
-
-    // PHASE 3 — SUPER GLOW
-    setTimeout(() =>
-    {
-        attackerClone.classList.add("superGlow");
-        if (defenderClone) defenderClone.classList.add("superGlow");
-    }, 1200);
-
-    // PHASE 4 — launch at each other
-    setTimeout(() =>
-    {
-        attackerClone.classList.remove("chargeUp", "superGlow");
-        if (defenderClone) defenderClone.classList.remove("chargeUp", "superGlow");
-
-        attackerClone.classList.add("fly");
-        if (defenderClone) defenderClone.classList.add("fly");
-
-        attackerClone.style.left = defenderFront.x + "px";
-        attackerClone.style.top = defenderFront.y + "px";
-
-        if (defenderClone)
-        {
-            defenderClone.style.left = attackerFront.x + "px";
-            defenderClone.style.top = attackerFront.y + "px";
-        }
-    }, 1300);
-
-    // PHASE 5 — defender gets flung away
-    setTimeout(() => {
-        if (defenderClone)
-        {
-            defenderClone.classList.add("defenderHit");
-
-            if (attackerIsPlayer)
+            if (defenderClone)
             {
-                defenderClone.style.left = defenderFront.x + 200 + "px";
-                defenderClone.style.top = defenderFront.y - 150 + "px";
+                defenderClone.style.left = defenderFront.x + "px";
+                defenderClone.style.top = defenderFront.y + "px";
             }
-            else
+        }, 50);
+
+        setTimeout(() =>
+        {
+            attackerClone.classList.add("chargeUp");
+            if (defenderClone) defenderClone.classList.add("chargeUp");
+        }, 500);
+
+        setTimeout(() =>
+        {
+            attackerClone.classList.add("superGlow");
+            if (defenderClone) defenderClone.classList.add("superGlow");
+        }, 1200);
+
+        setTimeout(() =>
+        {
+            attackerClone.classList.remove("chargeUp", "superGlow");
+            if (defenderClone) defenderClone.classList.remove("chargeUp", "superGlow");
+
+            attackerClone.classList.add("fly");
+            if (defenderClone) defenderClone.classList.add("fly");
+
+            attackerClone.style.left = defenderFront.x + "px";
+            attackerClone.style.top = defenderFront.y + "px";
+
+            if (defenderClone)
             {
-                defenderClone.style.left = defenderFront.x - 200 + "px";
-                defenderClone.style.top = defenderFront.y + 150 + "px";
+                defenderClone.style.left = attackerFront.x + "px";
+                defenderClone.style.top = attackerFront.y + "px";
             }
-        }
-    }, 1600);
+        }, 1300);
 
-    // PHASE 6 — attacker hits the ship
-    setTimeout(() =>
+        setTimeout(() =>
+        {
+            if (attackerValue < defenderValue)
+            {
+                attackerClone.classList.add("defenderHit");
+
+                if (attackerIsPlayer)
+                {
+                    attackerClone.style.left = attackerFront.x - 200 + "px";
+                    attackerClone.style.top = attackerFront.y + 150 + "px";
+                }
+                else
+                {
+                    attackerClone.style.left = attackerFront.x + 200 + "px";
+                    attackerClone.style.top = attackerFront.y - 150 + "px";
+                }
+
+                setTimeout(() => attackerClone.style.opacity = "0", 200);
+
+                setTimeout(() =>
+                {
+                    if (defenderClone)
+                        defenderClone.style.opacity = "0";
+                }, 300);
+
+                setTimeout(() =>
+                {
+                    attackerClone.remove();
+                    if (defenderClone) defenderClone.remove();
+                    callback();
+                }, 1500);
+
+                return;
+            }
+
+            if (attackerValue === defenderValue)
+            {
+                attackerClone.classList.add("defenderHit");
+                attackerClone.style.opacity = "0";
+
+                if (defenderClone)
+                {
+                    defenderClone.classList.add("defenderHit");
+                    defenderClone.style.opacity = "0";
+                }
+
+                setTimeout(() =>
+                {
+                    attackerClone.remove();
+                    if (defenderClone) defenderClone.remove();
+                    callback();
+                }, 800);
+
+                return;
+            }
+
+            if (defenderClone)
+            {
+                defenderClone.classList.add("defenderHit");
+
+                if (attackerIsPlayer)
+                {
+                    defenderClone.style.left = defenderFront.x + 200 + "px";
+                    defenderClone.style.top = defenderFront.y - 150 + "px";
+                }
+                else
+                {
+                    defenderClone.style.left = defenderFront.x - 200 + "px";
+                    defenderClone.style.top = defenderFront.y + 150 + "px";
+                }
+
+                defenderClone.style.opacity = "0";
+            }
+
+        }, 1400);
+
+        setTimeout(() =>
+        {
+            if (attackerValue <= defenderValue) return;
+
+            const targetRect = defenderShip.getBoundingClientRect();
+
+            attackerClone.style.left = targetRect.left + targetRect.width/2 - 27 + "px";
+            attackerClone.style.top = targetRect.top + targetRect.height/2 - 40 + "px";
+            attackerClone.style.opacity = "0";
+
+            defenderShip.classList.add("shipFlash");
+            setTimeout(() => defenderShip.classList.remove("shipFlash"), 300);
+        }, 1900);
+
+        setTimeout(() =>
+        {
+            attackerClone.remove();
+            if (defenderClone) defenderClone.remove();
+            callback();
+        }, 2600);
+
+        return;
+    }
+
+
+    if (animationMode === "slow")
     {
-        const targetRect = defenderShip.getBoundingClientRect();
-        attackerClone.style.left = targetRect.left + targetRect.width/2 - 27 + "px";
-        attackerClone.style.top = targetRect.top + targetRect.height/2 - 40 + "px";
+        const centerX = (attackerFront.x + defenderFront.x) / 2;
+        const centerY = (attackerFront.y + defenderFront.y) / 2;
 
-        attackerClone.style.opacity = "0"; // disappear instantly
+        const attackerStart = { x: attackerFront.x, y: attackerFront.y };
+        const defenderStart = { x: defenderFront.x, y: defenderFront.y };
 
-        defenderShip.classList.add("shipFlash");
-        setTimeout(() => defenderShip.classList.remove("shipFlash"), 300);
-    }, 1900);
+        const clashOffset = 35;
 
-    // PHASE 7 — cleanup
-    setTimeout(() =>
-    {
-        attackerClone.remove();
-        if (defenderClone) defenderClone.remove();
-        callback();
-    }, 2600);
+        const attackerOffsetY = attackerIsPlayer ? clashOffset : -clashOffset;
+        const defenderOffsetY = -attackerOffsetY;
+
+        setTimeout(() =>
+        {
+            attackerClone.style.left = attackerStart.x + "px";
+            attackerClone.style.top = attackerStart.y + "px";
+
+            if (defenderClone)
+            {
+                defenderClone.style.left = defenderStart.x + "px";
+                defenderClone.style.top = defenderStart.y + "px";
+            }
+        }, 100);
+
+        setTimeout(() =>
+        {
+            attackerClone.style.left = centerX + "px";
+            attackerClone.style.top = (centerY + attackerOffsetY) + "px";
+
+            if (defenderClone)
+            {
+                defenderClone.style.left = centerX + "px";
+                defenderClone.style.top = (centerY + defenderOffsetY) + "px";
+            }
+        }, 900);
+
+        setTimeout(() =>
+        {
+            let atk = attackerValue;
+            let def = defenderValue;
+
+            const atkText = attackerClone.querySelector(".cardValue");
+            const defText = defenderClone ? defenderClone.querySelector(".cardValue") : null;
+
+            const drain = setInterval(() =>
+            {
+                atk -= 0.05;
+                if (defenderClone) def -= 0.05;
+
+                if (atkText) atkText.innerText = atk.toFixed(1);
+                if (defText) defText.innerText = def.toFixed(1);
+
+                const shake = (Math.random() - 0.5) * 4;
+
+                attackerClone.style.transform = `translateY(${shake}px)`;
+                if (defenderClone)
+                {
+                    defenderClone.style.transform = `translateY(${-shake}px)`;
+                }
+
+                if (atk <= 0 && def > 0)
+                {
+                    clearInterval(drain);
+
+                    attackerClone.classList.add("defenderHit");
+                    attackerClone.style.opacity = "0"; // same fade-out
+
+                    setTimeout(() =>
+                    {
+                        if (defenderClone)
+                        {
+                            defenderClone.classList.add("defenderHit");
+                            defenderClone.style.opacity = "0";
+                        }
+
+                        setTimeout(() =>
+                        {
+                            attackerClone.remove();
+                            if (defenderClone) defenderClone.remove();
+                            callback();
+                        }, 800);
+
+                    }, 1200);
+
+                    return;
+                }
+
+                if (atk <= 0 && def <= 0)
+                {
+                    clearInterval(drain);
+
+                    // both use SAME fade-out animation
+                    attackerClone.classList.add("defenderHit");
+                    attackerClone.style.opacity = "0";
+
+                    if (defenderClone)
+                    {
+                        defenderClone.classList.add("defenderHit");
+                        defenderClone.style.opacity = "0";
+                    }
+
+                    setTimeout(() =>
+                    {
+                        attackerClone.remove();
+                        if (defenderClone) defenderClone.remove();
+                        callback();
+                    }, 800);
+
+                    return;
+                }
+
+                if (!defenderClone || def <= 0)
+                {
+                    clearInterval(drain);
+
+                    attackerClone.style.transform = "none";
+
+                    if (defenderClone)
+                    {
+                        defenderClone.classList.add("defenderHit");
+
+                        if (attackerIsPlayer)
+                        {
+                            defenderClone.style.left = defenderFront.x + 200 + "px";
+                            defenderClone.style.top = defenderFront.y - 150 + "px";
+                        }
+                        else
+                        {
+                            defenderClone.style.left = defenderFront.x - 200 + "px";
+                            defenderClone.style.top = defenderFront.y + 150 + "px";
+                        }
+
+                        setTimeout(() =>
+                        {
+                            defenderClone.style.opacity = "0";
+                        }, 200);
+                    }
+
+                   setTimeout(() =>
+                    {
+                        attackerClone.style.transition = "left 0.15s linear, top 0.15s linear";
+
+                        attackerClone.style.left = defenderFront.x + "px";
+                        attackerClone.style.top = defenderFront.y + "px";
+
+                        setTimeout(() =>
+                        {
+                            attackerClone.style.transition = "";
+                        }, 200);
+
+                    }, 300);
+
+                    setTimeout(() =>
+                    {
+                        const targetRect = defenderShip.getBoundingClientRect();
+
+                        attackerClone.style.left =
+                            targetRect.left + targetRect.width / 2 - 27 + "px";
+
+                        attackerClone.style.top =
+                            targetRect.top + targetRect.height / 2 - 40 + "px";
+
+                        attackerClone.style.opacity = "0";
+
+                        defenderShip.classList.add("shipFlash");
+                        setTimeout(() => defenderShip.classList.remove("shipFlash"), 300);
+                    }, 500);
+
+                    setTimeout(() =>
+                    {
+                        attackerClone.remove();
+                        if (defenderClone) defenderClone.remove();
+                        callback();
+                    }, 1400);
+
+                    return;
+                }
+            }, 40);
+
+        }, 1200);
+
+        return;
+    }
 }
 
 function animateEnemySkipAttack(attackerValue, callback)
@@ -986,7 +1242,10 @@ function createCloneAt(cardEl, isPlayer, value)
     clone.style.left = rect.left + "px";
     clone.style.top = rect.top + "px";
 
-    clone.innerHTML = `<div class="cardValue">${value}</div>`;
+    const opMatch = cardEl.innerText.match(/[+\-*/]/);
+    const op = opMatch ? opMatch[0] : "";
+
+    clone.innerHTML = `<div class="cardValue">${op}${value}</div>`;
 
     document.body.appendChild(clone);
     return clone;
