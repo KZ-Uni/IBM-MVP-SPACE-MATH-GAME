@@ -6,6 +6,24 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin')
     header("Location: login.php");
     exit;
 }
+
+$message = '';
+$messageType = '';
+if (isset($_GET['status']) && isset($_GET['action']))
+{
+    $action = htmlspecialchars($_GET['action']);
+    $status = $_GET['status'] === 'success' ? 'success' : 'error';
+
+    if ($status === 'success')
+    {
+        $message = ucfirst($action) . " completed successfully!";
+    }
+    else
+    {
+        $message = ucfirst($action) . " failed. Please check the IDs.";
+    }
+    $messageType = $status;
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -19,6 +37,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin')
             max-width: 1200px;
             margin: 50px auto;
             padding: 20px;
+            text-align: center;
         }
 
         #adminWrapper h1
@@ -82,6 +101,26 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin')
             transform: translateY(-2px) scale(1.03);
             box-shadow: 0 0 18px rgba(0, 200, 255, 0.9);
         }
+
+        .feedback
+        {
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .feedback.success
+        {
+            background-color: #0f766e;
+            color: #a7f3d0;
+        }
+
+        .feedback.error
+        {
+            background-color: #991b1b;
+            color: #fecaca;
+        }
     </style>
 </head>
 <body>
@@ -93,8 +132,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin')
 </div>
 
 <div id="adminWrapper">
-
     <h1>Admin Panel</h1>
+
+    <?php if ($message !== ''): ?>
+        <div class="feedback <?php echo $messageType; ?>">
+            <?php echo $message; ?>
+        </div>
+    <?php endif; ?>
 
     <div style="width:100%; margin-bottom:20px;">
         <a href="users.php" class="adminBtn" style="
@@ -175,7 +219,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin')
     <a id="settingsBtn" href="settings.php">Settings</a>
     <a id="playBtn" href="index.php">Back to Menu</a>
     <a id="logoutBtn" href="logout.php">Logout</a>
-
 </div>
 
 </body>
