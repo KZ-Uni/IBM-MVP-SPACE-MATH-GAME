@@ -22,6 +22,8 @@ if ($logged_in)
             break;
     }
 }
+
+$role = $logged_in ? $_SESSION['role'] : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -86,11 +88,6 @@ if ($logged_in)
             transform: translateY(-3px) scale(1.05);
             background: rgba(0, 234, 255, 0.1);
             box-shadow: 0 0 15px #00eaff, 0 0 30px rgba(0,234,255,0.6);
-        }
-
-        .menuBtn:active
-        {
-            transform: scale(0.95);
         }
 
         .menuBtn.start
@@ -195,7 +192,8 @@ if ($logged_in)
         </div>
 
         <div id="uiWrapper">
-            <?php if (!$logged_in): ?>
+            <?php if (!$logged_in) : ?>
+
                 <div id="loginLinkLayout">
                     <div id="loginLinkBox">
                         <h1>🚀 Space Math TCG</h1>
@@ -204,19 +202,23 @@ if ($logged_in)
                     </div>
                 </div>
 
-            <?php else: ?>
+            <?php else : ?>
 
                 <div id="menuLayout">
                     <div id="menuBox">
                         <h1>🚀 Space Math TCG</h1>
                         <p>Battle enemies using math-powered cards</p>
 
-                        <a href="game.php"><button class="menuBtn start">Start Game</button></a>
-                        <a href="tutorial.php"><button class="menuBtn secondary">Play Tutorial</button></a>
+                        <?php if ($role === 'student') : ?>
+                            <a href="game.php"><button class="menuBtn start">Start Game</button></a>
+                            <a href="tutorial.php"><button class="menuBtn secondary">Play Tutorial</button></a>
+                        <?php endif; ?>
+
                         <a href="<?php echo $dashboard_link; ?>"><button class="menuBtn dashboard">Go to Dashboard</button></a>
                         <a href="logout.php"><button class="menuBtn logout">Logout</button></a>
                     </div>
                 </div>
+
             <?php endif; ?>
         </div>
     </div>
