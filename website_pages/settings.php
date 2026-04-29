@@ -16,13 +16,14 @@ $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 
 $difficulty_locked = null;
+$current_difficulty = null;
 
 if ($role === 'student')
 {
-    $stmt = $conn->prepare("SELECT difficulty_locked FROM student_settings WHERE user_id = ?");
+    $stmt = $conn->prepare("SELECT difficulty_locked, difficulty FROM student_settings WHERE user_id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
-    $stmt->bind_result($difficulty_locked);
+    $stmt->bind_result($difficulty_locked, $current_difficulty);
     $stmt->fetch();
     $stmt->close();
 }
@@ -164,9 +165,9 @@ $backLink = match($role)
 
                     <label>Difficulty</label>
                     <select name="difficulty">
-                        <option value="easy">Easy</option>
-                        <option value="normal">Normal</option>
-                        <option value="hard">Hard</option>
+                        <option value="easy"   <?php if ($current_difficulty === 'easy') echo 'selected'; ?>>Easy</option>
+                        <option value="normal" <?php if ($current_difficulty === 'normal') echo 'selected'; ?>>Normal</option>
+                        <option value="hard"   <?php if ($current_difficulty === 'hard') echo 'selected'; ?>>Hard</option>
                     </select>
 
                 <?php endif; ?>
