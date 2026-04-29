@@ -64,7 +64,7 @@ $stmt->close();
             }
         </style>
         <script>
-            const GAME_DIFFICULTY = "<?php echo $difficulty; ?>";
+            window.GAME_DIFFICULTY = "<?php echo $difficulty; ?>";
 
             window.animationMode = localStorage.getItem("animMode") || "fast";
 
@@ -92,7 +92,6 @@ $stmt->close();
     <div id="rightButtons">
         <button class="spaceBtn" onclick="goDashboard()">🛸 Dashboard</button>
 
-        <!-- ✅ NEW TOGGLE BUTTON -->
         <button class="spaceBtn" onclick="toggleAnimationSpeed()">
             ⚡ Mode: <span id="animModeText">FAST</span>
         </button>
