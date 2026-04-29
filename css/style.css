@@ -1124,3 +1124,81 @@ h1
     transform: scale(1.05);
     box-shadow: 0 0 25px cyan;
 }
+
+.btn-lock
+{
+    padding: 8px 14px;
+    background: linear-gradient(90deg, #00eaff, #0077ff);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0,255,255,0.4);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-lock:hover
+{
+    transform: scale(1.07);
+    box-shadow: 0 0 20px cyan;
+}
+
+.btn-action
+{
+    padding: 10px 18px;
+    background: linear-gradient(90deg, #00eaff, #0077ff);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0,255,255,0.5);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-action:hover
+{
+    transform: scale(1.07);
+    box-shadow: 0 0 25px cyan;
+}
+
+.form-inline
+{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px auto;
+    flex-wrap: wrap;
+}
+
+.form-inline input, .form-inline select
+{
+    padding: 10px;
+    border-radius: 6px;
+    border: 2px solid #00eaff;
+    background: #050814;
+    color: white;
+    font-size: 15px;
+    box-shadow: 0 0 10px rgba(0,234,255,0.25);
+}
+
+.form-inline input::placeholder
+{
+    color: #7aa0b8;
+}
+
+.status
+{
+    margin: 10px auto;
+    padding: 12px 18px;
+    background: rgba(0,255,255,0.15);
+    border-left: 4px solid cyan;
+    border-radius: 6px;
+    width: fit-content;
+    font-weight: bold;
+    font-size: 16px;
+    color: #00eaff;
+    text-shadow: 0 0 10px cyan;
+    box-shadow: 0 0 12px rgba(0,255,255,0.3);
+}
