@@ -1,15 +1,26 @@
 <?php
 require "db.php";
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin')
+{
+    header("Location: login.php");
+    exit;
+}
+if (isset($_POST['child_id'], $_POST['parent_id']))
+{
+    $child_id = intval($_POST['child_id']);
+    $parent_id = intval($_POST['parent_id']);
 
-if ($_SESSION['role'] !== 'admin') exit;
+    $stmt = $conn->prepare("INSERT INTO parent_child (child_id, parent_id) VALUES (?, ?)");
+    $stmt->bind_param("ii", $child_id, $parent_id);
+    $stmt->execute();
 
-$child = $_POST['child_id'];
-$parent = $_POST['parent_id'];
-
-$stmt = $conn->prepare("INSERT INTO parent_children (parent_id, child_id) VALUES (?, ?)");
-$stmt->bind_param("ii", $parent, $child);
-$stmt->execute();
-
-header("Location: admin_panel.php");
+    if ($stmt->affected_rows > 0)
+        header("Location: admin_dashboard.php?action=assign_parent&status=success");
+    else
+        header("Location: admin_dashboard.php?action=assign_parent&status=error");
+    $stmt->close();
+    exit;
+}
+header("Location: admin_dashboard.php?action=assign_parent&status=error");
 exit;
 ?>
