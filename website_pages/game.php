@@ -65,85 +65,108 @@ $stmt->close();
         </style>
         <script>
             const GAME_DIFFICULTY = "<?php echo $difficulty; ?>";
-        </script>
-    </head>
 
-    <body>
-        <div id="topButtons">
-            <button class="spaceBtn" onclick="goIndex()">⟵ Index</button>
+            window.animationMode = localStorage.getItem("animMode") || "fast";
 
-            <div id="rightButtons">
-                <button class="spaceBtn" onclick="goDashboard()">🛸 Dashboard</button>
+            function toggleAnimationSpeed()
+            {
+                animationMode = animationMode === "fast" ? "slow" : "fast";
+                localStorage.setItem("animMode", animationMode);
+
+                const el = document.getElementById("animModeText");
+                if (el) el.innerText = animationMode.toUpperCase();
+            }
+
+            window.addEventListener("DOMContentLoaded", () => {
+                const el = document.getElementById("animModeText");
+                if (el) el.innerText = animationMode.toUpperCase();
+            });
+    </script>
+</head>
+
+<body>
+
+<div id="topButtons">
+    <button class="spaceBtn" onclick="goIndex()">⟵ Index</button>
+
+    <div id="rightButtons">
+        <button class="spaceBtn" onclick="goDashboard()">🛸 Dashboard</button>
+
+        <!-- ✅ NEW TOGGLE BUTTON -->
+        <button class="spaceBtn" onclick="toggleAnimationSpeed()">
+            ⚡ Mode: <span id="animModeText">FAST</span>
+        </button>
+    </div>
+</div>
+
+<div id="spaceBackground"></div>
+
+<div id="uiWrapper">
+    <h1>🚀 Space Math TCG Battle</h1>
+
+    <div id="enemyContainer">
+        <div id="enemyLabel">Enemy Hand</div>
+        <div id="enemyCards"></div>
+        <div id="enemyHiddenNote">Hidden until played.</div>
+    </div>
+
+    <div id="enemyHPContainer" class="hpContainer">
+        <div class="hpPanel">
+            <div class="hpLabel">👾 Enemy</div>
+            <div class="hpBar">
+                <div id="enemyHPFill" class="hpFill"></div>
             </div>
+            <div id="enemyHPText" class="hpValue">30 / 30</div>
         </div>
+    </div>
 
-        <div id="spaceBackground"></div>
+    <div id="battlefield">
+        <img id="enemyShip" class="ship" src="../imgs/enemy.png">
+        <img id="playerShip" class="ship" src="../imgs/player.png">
+        <div id="laser"></div>
+    </div>
 
-        <div id="uiWrapper">
-            <h1>🚀 Space Math TCG Battle</h1>
-
-            <div id="enemyContainer">
-                <div id="enemyLabel">Enemy Hand</div>
-                <div id="enemyCards"></div>
-                <div id="enemyHiddenNote">Hidden until played.</div>
+    <div id="playerHPContainer" class="hpContainer">
+        <div class="hpPanel">
+            <div class="hpLabel">🚀 Player</div>
+            <div class="hpBar">
+                <div id="playerHPFill" class="hpFill"></div>
             </div>
-
-            <div id="enemyHPContainer" class="hpContainer">
-                <div class="hpPanel">
-                    <div class="hpLabel">👾 Enemy</div>
-                    <div class="hpBar">
-                        <div id="enemyHPFill" class="hpFill"></div>
-                    </div>
-                    <div id="enemyHPText" class="hpValue">30 / 30</div>
-                </div>
-            </div>
-
-            <div id="battlefield">
-                <img id="enemyShip" class="ship" src="../imgs/enemy.png">
-                <img id="playerShip" class="ship" src="../imgs/player.png">
-                <div id="laser"></div>
-            </div>
-
-            <div id="playerHPContainer" class="hpContainer">
-                <div class="hpPanel">
-                    <div class="hpLabel">🚀 Player</div>
-                    <div class="hpBar">
-                        <div id="playerHPFill" class="hpFill"></div>
-                    </div>
-                    <div id="playerHPText" class="hpValue">30 / 30</div>
-                </div>
-            </div>
-
-            <h2 id="turnText">Loading...</h2>
-
-            <div id="handContainer">
-                <div id="handTitle">Your Hand</div>
-                <div id="cards"></div>
-            </div>
-
-            <div id="questionBox" style="display:none;">
-                <div id="questionInner">
-                    <div id="questionText"></div>
-                    <input type="number" id="answerInput">
-                    <button onclick="submitAnswer()">Submit</button>
-                </div>
-            </div>
+            <div id="playerHPText" class="hpValue">30 / 30</div>
         </div>
+    </div>
 
-        <div id="wrongAnswerBox">
-            Wrong Answer!
+    <h2 id="turnText">Loading...</h2>
+
+    <div id="handContainer">
+        <div id="handTitle">Your Hand</div>
+        <div id="cards"></div>
+    </div>
+
+    <div id="questionBox" style="display:none;">
+        <div id="questionInner">
+            <div id="questionText"></div>
+            <input type="number" id="answerInput">
+            <button onclick="submitAnswer()">Submit</button>
         </div>
+    </div>
+</div>
 
-        <div id="gameEndPopup">
-            <div id="gameEndInner">
-                <h2 id="gameEndTitle">Game Over</h2>
-                <p id="gameEndMessage"></p>
+<div id="wrongAnswerBox">
+    Wrong Answer!
+</div>
 
-                <button id="playAgainBtn" onclick="playAgain()">Play Again</button>
-                <button id="returnDashboardBtn" onclick="returnToDashboard()">Return to Dashboard</button>
-            </div>
-        </div>
+<div id="gameEndPopup">
+    <div id="gameEndInner">
+        <h2 id="gameEndTitle">Game Over</h2>
+        <p id="gameEndMessage"></p>
 
-        <script src="../js/game.js"></script>
-    </body>
+        <button id="playAgainBtn" onclick="playAgain()">Play Again</button>
+        <button id="returnDashboardBtn" onclick="returnToDashboard()">Return to Dashboard</button>
+    </div>
+</div>
+
+<script src="../js/game.js"></script>
+
+</body>
 </html>
