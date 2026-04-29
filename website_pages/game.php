@@ -77,95 +77,139 @@ $stmt->close();
                 if (el) el.innerText = animationMode.toUpperCase();
             }
 
-            window.addEventListener("DOMContentLoaded", () => {
+            window.addEventListener("DOMContentLoaded", () =>
+            {
                 const el = document.getElementById("animModeText");
                 if (el) el.innerText = animationMode.toUpperCase();
             });
-    </script>
-</head>
 
-<body>
 
-<div id="topButtons">
-    <button class="spaceBtn" onclick="goIndex()">⟵ Index</button>
+            let recognition = null;
 
-    <div id="rightButtons">
-        <button class="spaceBtn" onclick="goDashboard()">🛸 Dashboard</button>
+            function startSpeechInput()
+            {
+                if (!('webkitSpeechRecognition' in window))
+                {
+                    alert("Speech recognition not supported in this browser.");
+                    return;
+                }
 
-        <button class="spaceBtn" onclick="toggleAnimationSpeed()">
-            ⚡ Mode: <span id="animModeText">FAST</span>
-        </button>
-    </div>
-</div>
+                recognition = new webkitSpeechRecognition();
+                recognition.lang = "en-US";
+                recognition.continuous = false;
+                recognition.interimResults = false;
 
-<div id="spaceBackground"></div>
+                recognition.onresult = (event) =>
+                {
+                    let text = event.results[0][0].transcript.trim().toLowerCase();
 
-<div id="uiWrapper">
-    <h1>🚀 Space Math TCG Battle</h1>
+                    text = text.replace(/point|dot/gi, ".").replace(/ /g, "").replace(/[^0-9.]/g, "");
 
-    <div id="enemyContainer">
-        <div id="enemyLabel">Enemy Hand</div>
-        <div id="enemyCards"></div>
-        <div id="enemyHiddenNote">Hidden until played.</div>
-    </div>
+                    if (text.startsWith(".")) text = "0" + text;
+                    if (text.endsWith(".")) text = text.slice(0, -1);
 
-    <div id="enemyHPContainer" class="hpContainer">
-        <div class="hpPanel">
-            <div class="hpLabel">👾 Enemy</div>
-            <div class="hpBar">
-                <div id="enemyHPFill" class="hpFill"></div>
+                    const input = document.getElementById("answerInput");
+                    if (input) input.value = text;
+                };
+
+                recognition.onerror = (e) =>
+                {
+                    console.log("Speech error:", e.error);
+                };
+
+                recognition.onend = () =>
+                {
+                    recognition = null;
+                };
+
+                recognition.start();
+            }
+
+        </script>
+    </head>
+    <body>
+
+        <div id="topButtons">
+            <button class="spaceBtn" onclick="goIndex()">⟵ Index</button>
+
+            <div id="rightButtons">
+                <button class="spaceBtn" onclick="goDashboard()">🛸 Dashboard</button>
+
+                <button class="spaceBtn" onclick="toggleAnimationSpeed()">
+                    ⚡ Mode: <span id="animModeText">FAST</span>
+                </button>
             </div>
-            <div id="enemyHPText" class="hpValue">30 / 30</div>
         </div>
-    </div>
 
-    <div id="battlefield">
-        <img id="enemyShip" class="ship" src="../imgs/enemy.png">
-        <img id="playerShip" class="ship" src="../imgs/player.png">
-        <div id="laser"></div>
-    </div>
+        <div id="spaceBackground"></div>
 
-    <div id="playerHPContainer" class="hpContainer">
-        <div class="hpPanel">
-            <div class="hpLabel">🚀 Player</div>
-            <div class="hpBar">
-                <div id="playerHPFill" class="hpFill"></div>
+        <div id="uiWrapper">
+            <h1>🚀 Space Math TCG Battle</h1>
+
+            <div id="enemyContainer">
+                <div id="enemyLabel">Enemy Hand</div>
+                <div id="enemyCards"></div>
+                <div id="enemyHiddenNote">Hidden until played.</div>
             </div>
-            <div id="playerHPText" class="hpValue">30 / 30</div>
+
+            <div id="enemyHPContainer" class="hpContainer">
+                <div class="hpPanel">
+                    <div class="hpLabel">👾 Enemy</div>
+                    <div class="hpBar">
+                        <div id="enemyHPFill" class="hpFill"></div>
+                    </div>
+                    <div id="enemyHPText" class="hpValue">30 / 30</div>
+                </div>
+            </div>
+
+            <div id="battlefield">
+                <img id="enemyShip" class="ship" src="../imgs/enemy.png">
+                <img id="playerShip" class="ship" src="../imgs/player.png">
+                <div id="laser"></div>
+            </div>
+
+            <div id="playerHPContainer" class="hpContainer">
+                <div class="hpPanel">
+                    <div class="hpLabel">🚀 Player</div>
+                    <div class="hpBar">
+                        <div id="playerHPFill" class="hpFill"></div>
+                    </div>
+                    <div id="playerHPText" class="hpValue">30 / 30</div>
+                </div>
+            </div>
+
+            <h2 id="turnText">Loading...</h2>
+
+            <div id="handContainer">
+                <div id="handTitle">Your Hand</div>
+                <div id="cards"></div>
+            </div>
+
+            <div id="questionBox" style="display:none;">
+                <div id="questionInner">
+                    <div id="questionText"></div>
+                    <input type="text" id="answerInput" inputmode="numeric">
+
+                    <button onclick="submitAnswer()">Submit</button>
+                    <button onclick="startSpeechInput()">🎤 Speak</button>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <h2 id="turnText">Loading...</h2>
-
-    <div id="handContainer">
-        <div id="handTitle">Your Hand</div>
-        <div id="cards"></div>
-    </div>
-
-    <div id="questionBox" style="display:none;">
-        <div id="questionInner">
-            <div id="questionText"></div>
-            <input type="number" id="answerInput">
-            <button onclick="submitAnswer()">Submit</button>
+        <div id="wrongAnswerBox">
+            Wrong Answer!
         </div>
-    </div>
-</div>
 
-<div id="wrongAnswerBox">
-    Wrong Answer!
-</div>
+        <div id="gameEndPopup">
+            <div id="gameEndInner">
+                <h2 id="gameEndTitle">Game Over</h2>
+                <p id="gameEndMessage"></p>
 
-<div id="gameEndPopup">
-    <div id="gameEndInner">
-        <h2 id="gameEndTitle">Game Over</h2>
-        <p id="gameEndMessage"></p>
+                <button id="playAgainBtn" onclick="playAgain()">Play Again</button>
+                <button id="returnDashboardBtn" onclick="returnToDashboard()">Return to Dashboard</button>
+            </div>
+        </div>
 
-        <button id="playAgainBtn" onclick="playAgain()">Play Again</button>
-        <button id="returnDashboardBtn" onclick="returnToDashboard()">Return to Dashboard</button>
-    </div>
-</div>
-
-<script src="../js/game.js"></script>
-
-</body>
+        <script src="../js/game.js"></script>
+    </body>
 </html>
