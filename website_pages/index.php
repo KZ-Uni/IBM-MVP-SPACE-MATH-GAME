@@ -12,7 +12,7 @@ if ($logged_in)
             $dashboard_link = "student_dashboard.php";
             break;
         case 'admin':
-            $dashboard_link = "admin_panel.php";
+            $dashboard_link = "admin_dashboard.php";
             break;
         case 'educator':
             $dashboard_link = "educator_dashboard.php";
