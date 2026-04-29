@@ -1,6 +1,3 @@
-let playerHP = 30;
-let enemyHP = 30;
-
 let round = 1;
 let phase = "playerAttack";
 
@@ -36,6 +33,29 @@ const playerHPFill = document.getElementById("playerHPFill");
 const enemyHPText = document.getElementById("enemyHPText");
 const playerHPText = document.getElementById("playerHPText");
 
+let difficulty = window.GAME_DIFFICULTY || "easy";
+let playerMaxHP;
+let enemyMaxHP;
+
+if (difficulty === "easy")
+{
+    playerMaxHP = 40;
+    enemyMaxHP = 30;
+}
+else if (difficulty === "medium")
+{
+    playerMaxHP = 40;
+    enemyMaxHP = 45;
+}
+else
+{
+    playerMaxHP = 35;
+    enemyMaxHP = 55;
+}
+
+let playerHP = playerMaxHP;
+let enemyHP = enemyMaxHP;
+
 function lockInput()
 {
     inputLocked = true;
@@ -52,47 +72,75 @@ function isQuestionActive()
     return questionBox.style.display !== "none" && questionBox.style.display !== "";
 }
 
+function goIndex()
+{
+    window.location.href = "index.php";
+}
+
+function goDashboard()
+{
+    window.location.href = "student_dashboard.php";
+}
 
 function generateRandomCard()
 {
-    const rollType = Math.random();
-    let cardType;
+    let cardType = Math.random() < 0.5 ? "attack" : "defense";
     let op;
 
-    if (rollType < 0.55)
+    if (difficulty === "easy")
     {
-        cardType = "attack";
-        const rollOp = Math.random();
-        if (rollOp < 0.75) op = "+";
-        else op = "*";
+        if (cardType === "attack")
+        {
+            op = "+";
+        }
+        else
+        {
+            op = "-";
+        }
     }
     else
     {
-        cardType = "defense";
-        const rollOp = Math.random();
-        if (rollOp < 0.75) op = "-";
-        else op = "/";
+        if (cardType === "attack")
+        {
+            op = Math.random() < 0.5 ? "+" : "*";
+        }
+        else
+        {
+            op = Math.random() < 0.5 ? "-" : "/";
+        }
     }
 
     let value;
     let rarity;
 
-    if (op === "+" || op === "-")
+    if (difficulty === "easy")
     {
-        const r = Math.random();
-        if (r < 0.4) { value = 1; rarity = 1; }
-        else if (r < 0.7) { value = 2; rarity = 1; }
-        else if (r < 0.88) { value = 3; rarity = 2; }
-        else if (r < 0.97) { value = 4; rarity = 2; }
-        else { value = 5; rarity = 3; }
+        value = Math.floor(Math.random() * 3) + 1;
+        rarity = 1;
+    }
+    else if (difficulty === "medium")
+    {
+        if (op === "*" || op === "/")
+        {
+            value = parseFloat((Math.random() * 2 + 1).toFixed(1));
+        }
+        else
+        {
+            value = Math.floor(Math.random() * 4) + 1;
+        }
+        rarity = Math.random() < 0.7 ? 1 : 2;
     }
     else
     {
-        const r = Math.random();
-        if (r < 0.5) { value = 2; rarity = 2; }
-        else if (r < 0.8) { value = 3; rarity = 2; }
-        else if (r < 0.95) { value = 4; rarity = 3; }
-        else { value = 5; rarity = 4; }
+        if (op === "*" || op === "/")
+        {
+            value = parseFloat((Math.random() * 3 + 1).toFixed(1));
+        }
+        else
+        {
+            value = Math.floor(Math.random() * 5) + 2;
+        }
+        rarity = Math.random() < 0.5 ? 2 : 3;
     }
 
     return {
@@ -106,12 +154,43 @@ function generateRandomCard()
 
 function drawCardToHand()
 {
-    hand.push(generateRandomCard());
+    let card = generateRandomCard();
+
+    if (difficulty === "hard")
+    {
+        if (card.type === "attack" && card.value > 1)
+        {
+            card.value = typeof card.value === "number" ? card.value - 0.5 : parseFloat(card.value) - 0.5;
+        }
+
+        if (card.rarity > 1)
+        {
+            card.rarity -= 1;
+        }
+    }
+
+    hand.push(card);
 }
+
 
 function drawCardToEnemy()
 {
-    enemyHand.push(generateRandomCard());
+    let card = generateRandomCard();
+
+    if (difficulty === "hard")
+    {
+        if (card.type === "attack")
+        {
+            card.value = typeof card.value === "number" ? card.value + 1 : parseFloat(card.value) + 1;
+        }
+
+        if (card.rarity < 2)
+        {
+            card.rarity = 2;
+        }
+    }
+
+    enemyHand.push(card);
 }
 
 function startGame()
@@ -333,10 +412,22 @@ function generateQuestionForCard(card, mode)
 
         switch (card.op)
         {
-            case "+": text = `${a} + ${b}`; correct = a + b; break;
-            case "-": text = `${a} - ${b}`; correct = a - b; break;
-            case "*": text = `${a} × ${b}`; correct = a * b; break;
-            case "/": text = `${a * b} ÷ ${b}`; correct = a; break;
+            case "+":
+                text = a + " + " + b;
+                correct = a + b;
+                break;
+            case "-":
+                text = a + " - " + b;
+                correct = a - b;
+                break;
+            case "*":
+                text = a + " × " + b;
+                correct = parseFloat((a * b).toFixed(1));
+                break;
+            case "/":
+                text = (a * b) + " ÷ " + b;
+                correct = parseFloat(a.toFixed(1));
+                break;
         }
 
         card.computedAnswer = correct;
@@ -358,14 +449,14 @@ function generateQuestionForCard(card, mode)
 
     if (card.op === "-")
     {
-        text = `${enemyDamage} - ${b}`;
+        text = enemyDamage + " - " + b;
         correct = enemyDamage - b;
     }
 
     if (card.op === "/")
     {
-        text = `${enemyDamage} ÷ ${b}`;
-        correct = Math.floor(enemyDamage / b);
+        text = enemyDamage + " ÷ " + b;
+        correct = parseFloat((enemyDamage / b).toFixed(1));
     }
 
     if (correct < 0) correct = 0;
@@ -398,7 +489,19 @@ function submitAnswer()
 
     reactionTimes.push(Date.now() - questionStartTime);
 
-    if (answer === correct)
+    let isCorrect = false;
+
+    if (Number.isNaN(correct) || Number.isNaN(answer))
+    {
+        isCorrect = false;
+    }
+    else
+    {
+        const epsilon = 0.001;
+        isCorrect = Math.abs(answer - correct) < epsilon;
+    }
+
+    if (isCorrect)
     {
         totalCorrectAnswers++;
     }
@@ -419,7 +522,7 @@ function submitAnswer()
         return;
     }
 
-    if (answer === correct)
+    if (isCorrect)
     {
         if (phaseCopy === "attack") resolveAttackWithCard(card);
         else resolveDefenseWithCard(card);
@@ -570,11 +673,9 @@ function enemyAttack()
     if (!enemyAttackCard)
     {
         pendingDamage = 0;
-
         phase = "playerAttack";
         renderHand();
         renderEnemyHand();
-
         turnText.innerText = "Your Turn: Choose an Attack Card (30s)";
         startAttackTimer();
         return;
@@ -583,7 +684,14 @@ function enemyAttack()
     enemyHand = enemyHand.filter(c => c.id !== enemyAttackCard.id);
     renderEnemyHand();
 
-    pendingDamage = enemyAttackCard.op === "+" ? round + enemyAttackCard.value : round * enemyAttackCard.value;
+    if (enemyAttackCard.op === "+")
+    {
+        pendingDamage = round + enemyAttackCard.value;
+    }
+    else
+    {
+        pendingDamage = round * enemyAttackCard.value;
+    }
 
     turnText.innerText = "Enemy is attacking! Defend (30s)";
     renderEnemyHand();
@@ -642,11 +750,11 @@ function applyDamageToPlayer(dmg)
 
 function updateHPBars()
 {
-    enemyHPFill.style.width = (enemyHP / 30) * 100 + "%";
-    playerHPFill.style.width = (playerHP / 30) * 100 + "%";
+    enemyHPFill.style.width = (enemyHP / enemyMaxHP) * 100 + "%";
+    playerHPFill.style.width = (playerHP / playerMaxHP) * 100 + "%";
 
-    enemyHPText.innerText = `${enemyHP} / 30`;
-    playerHPText.innerText = `${playerHP} / 30`;
+    enemyHPText.innerText = enemyHP + " / " + enemyMaxHP;
+    playerHPText.innerText = playerHP + " / " + playerMaxHP;
 }
 
 function startAttackTimer()
@@ -999,7 +1107,3 @@ window.addEventListener("load", () =>
 
     startGame();
 });
-
-// ---------- GAME ----------
-
-startGame();
