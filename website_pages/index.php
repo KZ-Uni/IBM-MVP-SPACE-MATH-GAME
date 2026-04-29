@@ -181,6 +181,27 @@ $role = $logged_in ? $_SESSION['role'] : null;
             background: rgba(0, 234, 255, 0.1);
             box-shadow: 0 0 15px #00eaff, 0 0 30px rgba(0,234,255,0.6);
         }
+
+        #easterEgg
+        {
+            position: fixed;
+            bottom: 12px;
+            right: 12px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00eaff;
+            opacity: 0.15;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        #easterEgg:hover
+        {
+            opacity: 1;
+            box-shadow: 0 0 8px #00eaff;
+        }
+
     </style>
 </head>
 <body>
@@ -222,5 +243,6 @@ $role = $logged_in ? $_SESSION['role'] : null;
             <?php endif; ?>
         </div>
     </div>
+    <a id="easterEgg" href="blackjack.php"></a>
 </body>
 </html>
