@@ -15,7 +15,8 @@ $password = $_POST['password'];
 
 $check = $conn->prepare("
     SELECT id FROM users 
-    WHERE (username = ? OR email = ?) AND id != ?
+    WHERE (username = ? OR email = ?) 
+    AND id != ?
 ");
 $check->bind_param("ssi", $username, $email, $user_id);
 $check->execute();
@@ -23,7 +24,8 @@ $check->store_result();
 
 if ($check->num_rows > 0)
 {
-    die("Username or email already taken.");
+    header("Location: settings.php?error=taken");
+    exit;
 }
 
 $stmt = $conn->prepare("
@@ -49,10 +51,9 @@ if (!empty($password))
 
 if ($_SESSION['role'] === 'student' && isset($_POST['difficulty']))
 {
-    $difficulty = $_POST['difficulty'];
-
-    $_SESSION['difficulty'] = $difficulty;
+    $_SESSION['difficulty'] = $_POST['difficulty'];
 }
 
-header("Location: settings.php");
+header("Location: settings.php?success=1");
 exit;
+?>
