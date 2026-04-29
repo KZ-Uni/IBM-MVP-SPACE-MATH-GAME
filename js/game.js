@@ -101,57 +101,38 @@ function generateRandomCard()
 
     if (difficulty === "easy")
     {
-        if (cardType === "attack")
-        {
-            op = "+";
-        }
-        else
-        {
-            op = "-";
-        }
+        op = cardType === "attack" ? "+" : "-";
     }
     else
     {
         if (cardType === "attack")
-        {
             op = Math.random() < 0.5 ? "+" : "*";
-        }
         else
-        {
             op = Math.random() < 0.5 ? "-" : "/";
-        }
     }
 
     let value;
     let rarity;
 
+    if (op === "*" || op === "/")
+    {
+        value = parseFloat((Math.random() * 3 + 1).toFixed(1));
+    }
+    else
+    {
+        value = Math.floor(Math.random() * 5) + 1;
+    }
+
     if (difficulty === "easy")
     {
-        value = Math.floor(Math.random() * 3) + 1;
         rarity = 1;
     }
     else if (difficulty === "medium")
     {
-        if (op === "*" || op === "/")
-        {
-            value = parseFloat((Math.random() * 2 + 1).toFixed(1));
-        }
-        else
-        {
-            value = Math.floor(Math.random() * 4) + 1;
-        }
         rarity = Math.random() < 0.7 ? 1 : 2;
     }
     else
     {
-        if (op === "*" || op === "/")
-        {
-            value = parseFloat((Math.random() * 3 + 1).toFixed(1));
-        }
-        else
-        {
-            value = Math.floor(Math.random() * 5) + 2;
-        }
         rarity = Math.random() < 0.5 ? 2 : 3;
     }
 
@@ -163,6 +144,7 @@ function generateRandomCard()
         rarity: rarity
     };
 }
+
 
 function drawCardToHand()
 {
@@ -425,20 +407,23 @@ function generateQuestionForCard(card, mode)
         switch (card.op)
         {
             case "+":
-                text = a + " + " + b;
+                text = `${a} + ${b}`;
                 correct = a + b;
                 break;
+
             case "-":
-                text = a + " - " + b;
+                text = `${a} - ${b}`;
                 correct = a - b;
                 break;
+
             case "*":
-                text = a + " × " + b;
+                text = `${a} × ${b}`;
                 correct = parseFloat((a * b).toFixed(1));
                 break;
+
             case "/":
-                text = (a * b) + " ÷ " + b;
-                correct = parseFloat(a.toFixed(1));
+                text = `${a} ÷ ${b}`;
+                correct = parseFloat((a / b).toFixed(1));
                 break;
         }
 
@@ -448,7 +433,6 @@ function generateQuestionForCard(card, mode)
         answerInput.dataset.correct = correct;
 
         questionStartTime = Date.now();
-
         showQuestionPopup();
         return;
     }
@@ -459,19 +443,18 @@ function generateQuestionForCard(card, mode)
     let correct = 0;
     let text = "";
 
-    if (card.op === "-")
+    switch (card.op)
     {
-        text = enemyDamage + " - " + b;
-        correct = enemyDamage - b;
-    }
+        case "-":
+            text = `${enemyDamage} - ${b}`;
+            correct = enemyDamage - b;
+            break;
 
-    if (card.op === "/")
-    {
-        text = enemyDamage + " ÷ " + b;
-        correct = parseFloat((enemyDamage / b).toFixed(1));
+        case "/":
+            text = `${enemyDamage} ÷ ${b}`;
+            correct = parseFloat((enemyDamage / b).toFixed(1));
+            break;
     }
-
-    if (correct < 0) correct = 0;
 
     card.computedAnswer = correct;
     questionText.innerText = text;
@@ -479,9 +462,9 @@ function generateQuestionForCard(card, mode)
     answerInput.dataset.correct = correct;
 
     questionStartTime = Date.now();
-
     showQuestionPopup();
 }
+
 
 function showQuestionPopup()
 {
@@ -578,7 +561,7 @@ function resolveAttackWithCard(card)
         if (dmg < 0) dmg = 0;
     }
 
-    animateAttack(attackerCardEl, defenderCardEl, true, card.computedAnswer, defenderValue, enemySkipped, () =>
+    animateAttack(attackerCardEl, defenderCardEl, true, card.computedAnswer, defenderValue, enemySkipped, card.op, enemyDefenseCard ? enemyDefenseCard.op : null, () =>
     {
         enemyHP -= dmg;
         if (enemyHP < 0) enemyHP = 0;
@@ -609,7 +592,7 @@ function resolveDefenseWithCard(card)
     const attackerValue = pendingDamage;
     const defenderValue = card.value;
 
-    animateAttack(attackerCardEl, defenderCardEl, false, attackerValue, defenderValue, false, () =>
+    animateAttack(attackerCardEl, defenderCardEl, false, attackerValue, defenderValue, false, null, card.op, () =>
     {
         let dmg = pendingDamage;
 
@@ -646,7 +629,6 @@ function failAttackCard()
     unlockInput();
     enemyAttack();
 }
-
 
 function failDefenseCard()
 {
@@ -830,14 +812,14 @@ function clearDefenseTimer()
     }
 }
 
-function animateAttack(attackerCardEl, defenderCardEl, attackerIsPlayer, attackerValue, defenderValue, enemySkipped, callback) {
-
-    const attackerClone = createCloneAt(attackerCardEl, attackerIsPlayer, attackerValue);
+function animateAttack(attackerCardEl, defenderCardEl, attackerIsPlayer, attackerValue, defenderValue, enemySkipped, attackerOp, defenderOp, callback)
+{
+    const attackerClone = createCloneAt(attackerCardEl, attackerIsPlayer, attackerValue, attackerOp);
     let defenderClone = null;
 
     if (!enemySkipped && defenderCardEl)
     {
-        defenderClone = createCloneAt(defenderCardEl, !attackerIsPlayer, defenderValue);
+        defenderClone = createCloneAt(defenderCardEl, !attackerIsPlayer, defenderValue, defenderOp);
     }
 
     const attackerShip = attackerIsPlayer ? playerShip : enemyShip;
@@ -1036,16 +1018,28 @@ function animateAttack(attackerCardEl, defenderCardEl, attackerIsPlayer, attacke
             const atkText = attackerClone.querySelector(".cardValue");
             const defText = defenderClone ? defenderClone.querySelector(".cardValue") : null;
 
+            const atkOp = attackerClone.dataset.op;
+            const defOp = defenderClone ? defenderClone.dataset.op : null;
+
             const drain = setInterval(() =>
             {
-                atk -= 0.05;
-                if (defenderClone) def -= 0.05;
+                atk = parseFloat((atk - 0.05).toFixed(2));
+                if (defenderClone) def = parseFloat((def - 0.05).toFixed(2));
 
-                if (atkText) atkText.innerText = atk.toFixed(1);
-                if (defText) defText.innerText = def.toFixed(1);
+
+                if (atkText)
+                {
+                    atkText.innerText =
+                        atkOp === "-" || atkOp === "/" ? `${atkOp}${atk.toFixed(1)}` : atk.toFixed(1);
+                }
+
+                if (defText)
+                {
+                    defText.innerText =
+                        defOp === "-" || defOp === "/" ? `${defOp}${def.toFixed(1)}` : def.toFixed(1);
+                }
 
                 const shake = (Math.random() - 0.5) * 4;
-
                 attackerClone.style.transform = `translateY(${shake}px)`;
                 if (defenderClone)
                 {
@@ -1055,9 +1049,8 @@ function animateAttack(attackerCardEl, defenderCardEl, attackerIsPlayer, attacke
                 if (atk <= 0 && def > 0)
                 {
                     clearInterval(drain);
-
                     attackerClone.classList.add("defenderHit");
-                    attackerClone.style.opacity = "0"; // same fade-out
+                    attackerClone.style.opacity = "0";
 
                     setTimeout(() =>
                     {
@@ -1083,7 +1076,6 @@ function animateAttack(attackerCardEl, defenderCardEl, attackerIsPlayer, attacke
                 {
                     clearInterval(drain);
 
-                    // both use SAME fade-out animation
                     attackerClone.classList.add("defenderHit");
                     attackerClone.style.opacity = "0";
 
@@ -1130,10 +1122,9 @@ function animateAttack(attackerCardEl, defenderCardEl, attackerIsPlayer, attacke
                         }, 200);
                     }
 
-                   setTimeout(() =>
+                    setTimeout(() =>
                     {
                         attackerClone.style.transition = "left 0.15s linear, top 0.15s linear";
-
                         attackerClone.style.left = defenderFront.x + "px";
                         attackerClone.style.top = defenderFront.y + "px";
 
@@ -1170,9 +1161,7 @@ function animateAttack(attackerCardEl, defenderCardEl, attackerIsPlayer, attacke
                     return;
                 }
             }, 40);
-
         }, 1200);
-
         return;
     }
 }
@@ -1186,7 +1175,9 @@ function animateEnemySkipAttack(attackerValue, callback)
         return;
     }
 
-    const attackerClone = createCloneAt(attackerCardEl, false, attackerValue);
+    const op = attackerCardEl.dataset.op || "";
+    const attackerClone = createCloneAt(attackerCardEl, false, attackerValue, op);
+
     const attackerFront = getShipFront(enemyShip, false);
     const defenderFront = getShipFront(playerShip, true);
 
@@ -1232,7 +1223,7 @@ function animateEnemySkipAttack(attackerValue, callback)
     }, 2300);
 }
 
-function createCloneAt(cardEl, isPlayer, value)
+function createCloneAt(cardEl, isPlayer, value, op)
 {
     const rect = cardEl.getBoundingClientRect();
 
@@ -1242,14 +1233,16 @@ function createCloneAt(cardEl, isPlayer, value)
     clone.style.left = rect.left + "px";
     clone.style.top = rect.top + "px";
 
-    const opMatch = cardEl.innerText.match(/[+\-*/]/);
-    const op = opMatch ? opMatch[0] : "";
+    op = op || "";
+
+    clone.dataset.op = op;
 
     clone.innerHTML = `<div class="cardValue">${op}${value}</div>`;
 
     document.body.appendChild(clone);
     return clone;
 }
+
 
 function getBattleCenter()
 {
