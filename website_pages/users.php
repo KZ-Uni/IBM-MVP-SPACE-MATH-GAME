@@ -64,59 +64,70 @@ $totalPages = ceil($total / $limit);
     <title>All Users</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        #adminWrapper {
+        #adminWrapper
+        {
             max-width: 900px;
             margin: 60px auto;
             padding: 20px;
         }
 
-        table {
+        table
+        {
             border-collapse: collapse;
             width: 100%;
         }
 
-        th, td {
+        th, td
+        {
             padding: 10px 15px;
             border: 1px solid #00f2fe;
             text-align: left;
             color: white;
         }
 
-        th a {
+        th a
+        {
             color: white;
             text-decoration: none;
         }
 
-        th a.sorted.asc::after {
+        th a.sorted.asc::after
+        {
             content: ' ↑';
         }
 
-        th a.sorted.desc::after {
+        th a.sorted.desc::after
+        {
             content: ' ↓';
         }
 
-        th a.sorted {
+        th a.sorted
+        {
             font-weight: bold;
             text-decoration: none;
         }
 
-        .pagination {
+        .pagination
+        {
             text-align: center;
             margin-top: 20px;
         }
 
-        .pagination a {
+        .pagination a
+        {
             margin: 0 5px;
             color: white;
             text-decoration: none;
         }
 
-        .pagination a.current {
+        .pagination a.current
+        {
             font-weight: bold;
             text-decoration: underline;
         }
 
-        input, select, button {
+        input, select, button
+        {
             padding: 5px 10px;
             margin-right: 5px;
             margin-top: 5px;
@@ -126,7 +137,8 @@ $totalPages = ceil($total / $limit);
             color: white;
         }
 
-        button {
+        button
+        {
             background: linear-gradient(90deg,#00eaff,#0077ff);
             border: none;
             cursor: pointer;
