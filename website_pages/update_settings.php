@@ -8,10 +8,11 @@ if (!isset($_SESSION['user_id']))
 }
 
 $user_id = $_SESSION['user_id'];
+$role = $_SESSION['role'];
 
-$username = $_POST['username'];
-$email = $_POST['email'];
-$password = $_POST['password'];
+$username = trim($_POST['username']);
+$email = trim($_POST['email']);
+$password = trim($_POST['password']);
 
 $check = $conn->prepare("
     SELECT id FROM users 
@@ -28,6 +29,8 @@ if ($check->num_rows > 0)
     exit;
 }
 
+$check->close();
+
 $stmt = $conn->prepare("
     UPDATE users 
     SET username = ?, email = ?
@@ -35,6 +38,7 @@ $stmt = $conn->prepare("
 ");
 $stmt->bind_param("ssi", $username, $email, $user_id);
 $stmt->execute();
+$stmt->close();
 
 if (!empty($password))
 {
@@ -47,11 +51,35 @@ if (!empty($password))
     ");
     $stmt->bind_param("si", $hashed, $user_id);
     $stmt->execute();
+    $stmt->close();
 }
 
-if ($_SESSION['role'] === 'student' && isset($_POST['difficulty']))
+if ($role === 'student')
 {
-    $_SESSION['difficulty'] = $_POST['difficulty'];
+    $stmt = $conn->prepare("
+        SELECT difficulty_locked 
+        FROM student_settings 
+        WHERE user_id = ?
+    ");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $stmt->bind_result($difficulty_locked);
+    $stmt->fetch();
+    $stmt->close();
+
+    if (!$difficulty_locked && isset($_POST['difficulty']))
+    {
+        $difficulty = $_POST['difficulty'];
+
+        $stmt = $conn->prepare("
+            UPDATE student_settings 
+            SET difficulty = ?
+            WHERE user_id = ?
+        ");
+        $stmt->bind_param("si", $difficulty, $user_id);
+        $stmt->execute();
+        $stmt->close();
+    }
 }
 
 header("Location: settings.php?success=1");
