@@ -1,12 +1,82 @@
+<?php
+require "db.php";
+
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student')
+{
+    header("Location: index.php");
+    exit;
+}
+
+$stmt = $conn->prepare("SELECT difficulty FROM student_settings WHERE user_id = ?");
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$stmt->bind_result($difficulty);
+$stmt->fetch();
+$stmt->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <title>Space Math TCG Battle</title>
         <link rel="stylesheet" href="../css/style.css">
+        <style>
+            #topButtons
+            {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                right: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                z-index: 9999;
+            }
+
+            #rightButtons
+            {
+                display: flex;
+                gap: 12px;
+            }
+
+            .spaceBtn
+            {
+                padding: 10px 18px;
+                font-size: 18px;
+                font-weight: bold;
+                border: 2px solid #4af3ff;
+                border-radius: 8px;
+                background: rgba(0, 20, 40, 0.7);
+                color: #4af3ff;
+                cursor: pointer;
+                text-shadow: 0 0 6px #4af3ff;
+                box-shadow: 0 0 10px #4af3ff inset, 0 0 10px #4af3ff;
+                transition: 0.2s ease;
+                backdrop-filter: blur(4px);
+            }
+
+            .spaceBtn:hover
+            {
+                background: rgba(0, 40, 80, 0.9);
+                box-shadow: 0 0 14px #4af3ff inset, 0 0 14px #4af3ff;
+                transform: translateY(-2px);
+            }
+        </style>
+        <script>
+            const GAME_DIFFICULTY = "<?php echo $difficulty; ?>";
+        </script>
     </head>
 
     <body>
+        <div id="topButtons">
+            <button class="spaceBtn" onclick="goIndex()">⟵ Index</button>
+
+            <div id="rightButtons">
+                <button class="spaceBtn" onclick="goDashboard()">🛸 Dashboard</button>
+            </div>
+        </div>
+
         <div id="spaceBackground"></div>
 
         <div id="uiWrapper">
