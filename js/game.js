@@ -116,7 +116,11 @@ function generateRandomCard()
 
     if (op === "*" || op === "/")
     {
-        value = parseFloat((Math.random() * 3 + 1).toFixed(1));
+        value = 1 + Math.random() * 3;
+        value = parseFloat(value.toFixed(2));
+        value = parseFloat(value.toFixed(1));
+
+        if (value < 1) value = 1.0;
     }
     else
     {
@@ -241,7 +245,7 @@ function renderHand()
 
         const opDiv = document.createElement("div");
         opDiv.className = "card-op";
-        opDiv.innerText = `${card.op}${card.value}`;
+        opDiv.innerText = `${card.op}${Number(card.value.toFixed(1))}`;
 
         const typeDiv = document.createElement("div");
         typeDiv.className = "card-type";
@@ -417,12 +421,12 @@ function generateQuestionForCard(card, mode)
                 break;
 
             case "*":
-                text = `${a} × ${b}`;
+                text = `${a} × ${Number(b.toFixed(1))}`;
                 correct = parseFloat((a * b).toFixed(1));
                 break;
 
             case "/":
-                text = `${a} ÷ ${b}`;
+                text = `${a} ÷ ${Number(b.toFixed(1))}`;
                 correct = parseFloat((a / b).toFixed(1));
                 break;
         }
@@ -451,7 +455,7 @@ function generateQuestionForCard(card, mode)
             break;
 
         case "/":
-            text = `${enemyDamage} ÷ ${b}`;
+            text = `${enemyDamage} ÷ ${Number(b.toFixed(1))}`;
             correct = parseFloat((enemyDamage / b).toFixed(1));
             break;
     }
