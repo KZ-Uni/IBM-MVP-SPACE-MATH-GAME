@@ -166,7 +166,7 @@ $backLink = match($role)
                     <label>Difficulty</label>
                     <select name="difficulty">
                         <option value="easy"   <?php if ($current_difficulty === 'easy') echo 'selected'; ?>>Easy</option>
-                        <option value="normal" <?php if ($current_difficulty === 'normal') echo 'selected'; ?>>Normal</option>
+                        <option value="medium" <?php if ($current_difficulty === 'medium') echo 'selected'; ?>>Medium</option>
                         <option value="hard"   <?php if ($current_difficulty === 'hard') echo 'selected'; ?>>Hard</option>
                     </select>
 
@@ -181,3 +181,4 @@ $backLink = match($role)
     </div>
 </body>
 </html>
+
