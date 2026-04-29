@@ -34,6 +34,31 @@ $result = $stmt->get_result();
 <head>
     <title>Educator Dashboard</title>
     <link rel="stylesheet" href="../css/style.css">
+    <style>
+        #settingsBtn
+        {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 20px;
+
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            text-decoration: none;
+
+            border-radius: 8px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+
+            box-shadow: 0 0 10px rgba(0, 200, 255, 0.6);
+            transition: all 0.2s ease;
+        }
+
+        #settingsBtn:hover
+        {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 0 18px rgba(0, 200, 255, 0.9);
+        }
+    </style>
 </head>
 <body>
 
@@ -64,7 +89,7 @@ $result = $stmt->get_result();
             $winrate = $total > 0 ? round(($row['wins'] / $total) * 100) . "%" : "0%";
         ?>
         <tr>
-            <td><?= $row['username'] ?></td>
+            <td><?= htmlspecialchars($row['username']) ?></td>
             <td><?= $row['games_played'] ?></td>
             <td><?= $row['correct_answers'] ?></td>
             <td><?= $row['wrong_answers'] ?></td>
@@ -75,6 +100,8 @@ $result = $stmt->get_result();
         </tr>
         <?php endwhile; ?>
     </table>
+
+    <a id="settingsBtn" href="settings.php">Settings</a>
 
     <a id="playBtn" href="index.php">Back to Menu</a>
     <a id="logoutBtn" href="logout.php">Logout</a>
