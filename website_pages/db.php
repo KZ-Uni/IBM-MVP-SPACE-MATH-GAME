@@ -62,19 +62,22 @@ CREATE TABLE IF NOT EXISTS parent_children (
 
 function createDefaultUser($conn, $username, $password, $role)
 {
-    $check = $conn->prepare("SELECT id FROM users WHERE username = ? LIMIT 1");
-    $check->bind_param("s", $username);
+    $email = $username . "@system.local";
+
+    $check = $conn->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+    $check->bind_param("s", $email);
     $check->execute();
     $check->store_result();
 
-    if ($check->num_rows === 0) 
+    if ($check->num_rows === 0)
     {
         $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $email = $username . "@system.local";
 
-        $insert = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
+        $insert = $conn->prepare("
+            INSERT INTO users (username, email, password, role)
+            VALUES (?, ?, ?, ?)
+        ");
         $insert->bind_param("ssss", $username, $email, $hashed, $role);
-
         $insert->execute();
     }
 }
