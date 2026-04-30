@@ -165,7 +165,11 @@ $result = $stmt->get_result();
     </style>
 </head>
 <body>
-
+    <div id="spaceBackground">
+        <div id="stars1" class="starLayer"></div>
+        <div id="stars2" class="starLayer"></div>
+        <div id="stars3" class="starLayer"></div>
+    </div>
 <div id="educatorWrapper">
     <h1>Educator Dashboard</h1>
 
