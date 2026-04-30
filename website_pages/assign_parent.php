@@ -10,7 +10,7 @@ if (isset($_POST['child_id'], $_POST['parent_id']))
     $child_id = intval($_POST['child_id']);
     $parent_id = intval($_POST['parent_id']);
 
-    $stmt = $conn->prepare("INSERT INTO parent_child (child_id, parent_id) VALUES (?, ?)");
+    $stmt = $conn->prepare("INSERT INTO parent_children (child_id, parent_id) VALUES (?, ?)");
     $stmt->bind_param("ii", $child_id, $parent_id);
     $stmt->execute();
 
