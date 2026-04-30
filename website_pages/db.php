@@ -3,7 +3,7 @@ $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "math_game";
-$port = 3307;
+$port = 3306;
 
 $conn = new mysqli($servername, $username, $password, "", $port);
 if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
