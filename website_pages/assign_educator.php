@@ -10,7 +10,7 @@ if (isset($_POST['student_id'], $_POST['educator_id']))
     $student_id = intval($_POST['student_id']);
     $educator_id = intval($_POST['educator_id']);
 
-    $stmt = $conn->prepare("INSERT INTO student_educator (student_id, educator_id) VALUES (?, ?)");
+    $stmt = $conn->prepare("INSERT INTO educator_students (student_id, educator_id) VALUES (?, ?)");
     $stmt->bind_param("ii", $student_id, $educator_id);
     $stmt->execute();
 
